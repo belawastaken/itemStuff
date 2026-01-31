@@ -37,12 +37,7 @@ body {
 }
 .preview-panel.white-mode { background-color: #ffffff; background-image: none; }
 
-/* Controls */
-.preview-controls {
-    position: absolute;
-    top: 20px; right: 20px;
-    z-index: 100;
-}
+.preview-controls { position: absolute; top: 20px; right: 20px; z-index: 100; }
 .control-btn {
     padding: 8px 12px;
     background: rgba(255,255,255,0.1);
@@ -72,15 +67,8 @@ body {
     text-shadow: 2px 2px 0px #3f3f3f;
 }
 
-/* FIX: Ensure these are block elements so they stack */
-.tooltip-title { 
-    display: block; 
-    margin-bottom: 8px; 
-}
-.tooltip-lore { 
-    display: block; 
-    color: #aaaaaa; 
-}
+.tooltip-title { display: block; margin-bottom: 8px; }
+.tooltip-lore { display: block; color: #aaaaaa; }
 
 /* Borders */
 .line { position: absolute; z-index: 2; }
@@ -93,21 +81,56 @@ body {
 .b-left { top: 2px; bottom: 2px; left: -2px; width: 2px; background: #100010; }
 .b-right { top: 2px; bottom: 2px; right: -2px; width: 2px; background: #100010; }
 
-/* --- SYMBOLS --- */
+/* --- SYMBOLS & MAGIC TEXT --- */
+
+/* 1. Static Symbols (Stars, Soulflow) */
 .mc-symbol {
     display: inline-block; 
     vertical-align: middle; 
     width: 16px; height: 16px;
+    
     background-color: currentColor;
-    -webkit-mask-size: 256px 256px; mask-size: 256px 256px;
-    transform: scale(1.1); /* 10% Bigger */
+    -webkit-mask-image: var(--bg);
+    mask-image: var(--bg);
+    -webkit-mask-position: var(--pos);
+    mask-position: var(--pos);
+    -webkit-mask-size: 256px 256px;
+    mask-size: 256px 256px;
+    
+    transform: scale(1.1);
     position: relative;
-    top: -2px; /* Lifted */
+    top: -2px; 
     margin: 0 1px;
 }
 
-.obfuscated, .s-k { display: inline-block; width: auto; }
+/* 2. Magic / Obfuscated Text */
+.mc-obfuscated {
+    display: inline-block;
+    vertical-align: bottom; /* Aligns with text baseline */
+    height: 16px; /* Standard char height */
+    
+    /* THE FIX: Use Masking to define the shape, use BackgroundColor for the fill */
+    background-color: currentColor;
+    
+    -webkit-mask-image: url('fonts/ascii.png');
+    mask-image: url('fonts/ascii.png');
+    
+    /* IMPORTANT: Crisp pixel art rendering */
+    image-rendering: pixelated; 
+    
+    -webkit-mask-size: 256px 256px; 
+    mask-size: 256px 256px;
+    
+    /* Width and MaskPosition are updated by JS per frame */
+}
 
 /* Colors */
 .c-0{color:#000;text-shadow:2px 2px #000}.c-1{color:#00a;text-shadow:2px 2px #002a00}.c-2{color:#0a0;text-shadow:2px 2px #002a00}.c-3{color:#0aa;text-shadow:2px 2px #002a2a}.c-4{color:#a00;text-shadow:2px 2px #2a0000}.c-5{color:#a0a;text-shadow:2px 2px #2a002a}.c-6{color:#fa0;text-shadow:2px 2px #2a2a00}.c-7{color:#aaa;text-shadow:2px 2px #2a2a2a}.c-8{color:#555;text-shadow:2px 2px #151515}.c-9{color:#55f;text-shadow:2px 2px #15153f}.c-a{color:#5f5;text-shadow:2px 2px #153f15}.c-b{color:#5ff;text-shadow:2px 2px #153f3f}.c-c{color:#f55;text-shadow:2px 2px #3f1515}.c-d{color:#f5f;text-shadow:2px 2px #3f153f}.c-e{color:#ff5;text-shadow:2px 2px #3f3f15}.c-f{color:#fff;text-shadow:2px 2px #3f3f3f}
 .s-l{font-weight:bold}.s-m{text-decoration:line-through}.s-n{text-decoration:underline}.s-o{font-style:italic}
+
+.control-btn.active {
+    background: rgba(85, 255, 85, 0.2); /* Light Green tint */
+    border-color: rgba(85, 255, 85, 0.5);
+    color: #aaffaa;
+    text-shadow: 0 0 5px rgba(85, 255, 85, 0.5);
+}
