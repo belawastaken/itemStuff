@@ -72,6 +72,16 @@ body {
     text-shadow: 2px 2px 0px #3f3f3f;
 }
 
+/* FIX: Ensure these are block elements so they stack */
+.tooltip-title { 
+    display: block; 
+    margin-bottom: 8px; 
+}
+.tooltip-lore { 
+    display: block; 
+    color: #aaaaaa; 
+}
+
 /* Borders */
 .line { position: absolute; z-index: 2; }
 .p-top { top: 0; left: 2px; right: 2px; height: 2px; background: #300090; }
@@ -86,20 +96,13 @@ body {
 /* --- SYMBOLS --- */
 .mc-symbol {
     display: inline-block; 
-    
-    /* FIX: Positioning & Size */
     vertical-align: middle; 
     width: 16px; height: 16px;
     background-color: currentColor;
     -webkit-mask-size: 256px 256px; mask-size: 256px 256px;
-    
-    /* 10% Bigger */
-    transform: scale(1.1);
-    
-    /* Moved Up */
+    transform: scale(1.1); /* 10% Bigger */
     position: relative;
-    top: -2px; 
-    
+    top: -2px; /* Lifted */
     margin: 0 1px;
 }
 

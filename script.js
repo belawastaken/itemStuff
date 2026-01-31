@@ -29,44 +29,42 @@ function render(jsonString) {
         let name = data.name || (data.tag?.display?.Name) || "";
         let lore = data.Lore || (data.tag?.display?.Lore) || [];
         
-        // --- IMPROVED RECOMB DETECTION ---
-        const isRecomb = (data.recomb === true) || 
-                         (data.recombobulated === true) ||
-                         // Check nested NBT (common in API dumps)
-                         (data.tag?.ExtraAttributes?.rarity_upgrades > 0) || 
-                         // Check lower camelCase root (common in mod dumps)
-                         (data.extraAttributes?.rarity_upgrades > 0) ||
-                         // Check PascalCase root (Your JSON format)
-                         (data.ExtraAttributes?.rarity_upgrades > 0);
-
-        if (isRecomb && lore.length > 0) {
-            lore = [...lore]; // Safety copy
-            const lastLine = lore[lore.length - 1];
-            
-            // Recomb Logic: Wrap the last line in Magic (§k) characters
-            // "M" is the placeholder that gets scrambled
-            lore[lore.length - 1] = `§kM §r${lastLine} §kM`;
+        // --- 1. ARTIFACT REPLACEMENT (Regex) ---
+        if (lore.length > 0) {
+            lore = lore.map(line => {
+                // REGEX 1: Start of Line Artifact
+                // Pattern: Start(^) -> Color Codes -> 'a' -> Lookahead for Section Sign (§)
+                // Fixes: "§r§d§la§r..." -> "§r§d§l§ka§r..."
+                // Prevents: "§aAspect" (No § after A) from breaking.
+                line = line.replace(/^((?:§[0-9a-fk-or])+)a(?=§)/i, '$1§ka');
+                
+                // REGEX 2: End of Line Artifact
+                // Pattern: Color Codes -> 'a' -> End($)
+                // Fixes: "...§r§d§la" -> "...§r§d§l§ka"
+                line = line.replace(/((?:§[0-9a-fk-or])+)a$/i, '$1§ka');
+                
+                return line;
+            });
         }
-        // -------------------------------
+        // ---------------------------------------
 
-        // Build HTML
         let html = `<div class="tooltip-box">`;
         
-        // 8-Line Border System
+        // Borders
         html += `<div class="line p-top"></div><div class="line p-bottom"></div><div class="line p-left"></div><div class="line p-right"></div>`;
         html += `<div class="line b-top"></div><div class="line b-bottom"></div><div class="line b-left"></div><div class="line b-right"></div>`;
 
         // Content
         html += `<div class="tooltip-content">`;
-        html += `<span class="tooltip-title">${parseText(name)}</span>`;
+        html += `<div class="tooltip-title">${parseText(name)}</div>`;
         
         if (lore.length > 0) {
-            html += `<span class="tooltip-lore">`;
+            html += `<div class="tooltip-lore">`;
             lore.forEach((line, i) => {
                 if(i > 0) html += `<br>`;
                 html += parseText(line);
             });
-            html += `</span>`;
+            html += `</div>`;
         }
         
         html += `</div></div>`; 
@@ -81,12 +79,17 @@ function render(jsonString) {
 
 function parseText(text) {
     if (!text) return "";
+    
+    // REGEX 3: Color Code Splitter
+    // Splits text by any § or & followed by a valid format char
     const parts = text.split(/([§&][0-9a-fk-or])/gi);
+    
     let output = "";
     let color = "f";
     let styles = new Set();
 
     parts.forEach(part => {
+        // Check if this part is a color code
         if (part.match(/^[§&][0-9a-fk-or]$/i)) {
             const code = part[1].toLowerCase();
             if (/[0-9a-f]/.test(code)) {
@@ -120,7 +123,7 @@ function parseText(text) {
                 }
             }
             
-            // Add 'obfuscated' class for animation if §k is present
+            // Apply Obfuscated Class if 'k' style is present
             if (styles.has('k')) {
                 output += `<span class="obfuscated ${cls.join(' ')}">${content}</span>`;
             } else {
@@ -133,7 +136,6 @@ function parseText(text) {
 
 /* --- ANIMATION ENGINE --- */
 function startObfuscation() {
-    // Magic characters pool
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
     
     setInterval(() => {
