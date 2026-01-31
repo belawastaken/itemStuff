@@ -140,3 +140,67 @@ function parseWikiText(text) {
 
     return output;
 }
+
+/* --- SAVE AS PNG FEATURE --- */
+
+document.addEventListener('DOMContentLoaded', () => {
+    const saveBtn = document.getElementById('floating-save-btn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', saveTooltipAsPng);
+    }
+});
+
+function saveTooltipAsPng() {
+    const element = document.getElementById('minetip-tooltip');
+    if (!element) return;
+
+    if (typeof htmlToImage === 'undefined') {
+        alert("Fehler: Image-Library nicht geladen.");
+        return;
+    }
+
+    const rect = element.getBoundingClientRect();
+    
+    // DEINE ANPASSUNG:
+    // Standard-Rahmenbreite ist 2px.
+    // Wir nehmen Oben/Links den Standard (2px).
+    // Rechts 1px weniger -> 1px.
+    // Unten 2px weniger -> 0px.
+    const padTop = 2;
+    const padLeft = 2;
+    const padRight = 2; 
+    const padBottom = 0; 
+
+    htmlToImage.toPng(element, {
+        quality: 1.0,
+        pixelRatio: 4,
+        
+        // Berechne exakte Leinwandgröße
+        width: rect.width + padLeft + padRight,
+        height: rect.height + padTop + padBottom,
+        
+        backgroundColor: null, 
+
+        style: {
+            // Schiebe das Element passend zum linken/oberen Padding
+            transform: `translate(${padLeft}px, ${padTop}px)`,
+            
+            margin: '0',
+            // FIX: Erzwinge massiven Hintergrund für den Export
+            backgroundColor: '#100010', 
+            opacity: '1',
+            boxSizing: 'border-box',
+            boxShadow: 'none'
+        }
+    })
+    .then(function (dataUrl) {
+        const link = document.createElement('a');
+        link.download = 'tooltip.png';
+        link.href = dataUrl;
+        link.click();
+    })
+    .catch(function (error) {
+        console.error('Export Error:', error);
+        alert("Export fehlgeschlagen! Bitte 'Live Server' nutzen.");
+    });
+}

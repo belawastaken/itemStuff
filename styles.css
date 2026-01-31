@@ -42,33 +42,33 @@ body {
 /* THE AUTHENTIC WIKI BOX */
 /* derived strictly from load.php */
 
+/* AUTHENTISCHER WIKI TOOLTIP (Ohne Transparenz) */
 #minetip-tooltip {
     display: inline-block;
     position: relative;
     z-index: 1000;
     
-    /* 1. Dimensions & Background */
-    background-color: rgba(16, 0, 16, 0.94); /* Exact transparency */
+    /* FIX: Massive Farbe statt RGBA (Entfernt den "Glanz") */
+    background-color: #100010;
+    
     margin: 0.125em 0.25em;
     padding: 0.375em;
     
-    /* 2. Text Settings */
     font-family: 'Minecraft', sans-serif;
     font-size: 16px;
-    line-height: 1.25em; /* This matches the wiki spacing perfectly */
+    line-height: 1.25em;
     white-space: pre-wrap;
     color: #fff;
-    text-shadow: 0.125em 0.125em #3F3F3F; /* The global shadow */
+    text-shadow: 0.125em 0.125em #3F3F3F;
     
-    /* 3. Reset Standard Borders */
     border: none;
     box-shadow: none;
 }
 
-/* 4. The "Inner" Border (Black & Transparency) */
 #minetip-tooltip::before {
     content: "";
     position: absolute;
+    /* Der Rahmen ragt 2px (0.125em) heraus */
     top: 0.125em;
     bottom: 0.125em;
     left: -0.125em;
@@ -76,12 +76,12 @@ body {
     
     border: 0.25em solid #100010;
     border-style: none solid;
-    border-color: rgba(16, 0, 16, 0.94);
+    /* FIX: Massive Farbe für den inneren Rahmen */
+    border-color: #100010; 
     pointer-events: none;
     z-index: -1;
 }
 
-/* 5. The "Outer" Gradient Border (The Purple Bezel) */
 #minetip-tooltip::after {
     content: "";
     position: absolute;
@@ -91,17 +91,20 @@ body {
     right: 0;
     
     border: 0.125em solid #2D0A63;
-    /* This linear gradient creates the "glassy" 3D effect */
     border-image: linear-gradient(to bottom, rgba(80,0,255,0.31), rgba(40,0,127,0.31)) 1;
     pointer-events: none;
     z-index: 1;
 }
 
-/* 6. Spacing Fix for Description */
-/* The wiki adds a tiny gap between the Title and the Lore */
 #minetip-tooltip .minetip-title + .minetip-description {
     display: block;
     margin-top: 0.25em;
+}
+
+/* Fix: Ensure text sits above the border overlay (prevents "shiny" tint) */
+.minetip-title, .minetip-description {
+    position: relative;
+    z-index: 2;
 }
 
 /* 5. COLOR SYSTEM (With Custom Shadows from load.php) */
@@ -171,4 +174,27 @@ body {
     resize: none;
     padding: 20px;
     outline: none;
+}
+
+/* SAVE BUTTON STYLING */
+#floating-save-btn {
+    position: fixed; /* Floats on top of everything */
+    bottom: 20px;
+    right: 20px;
+    z-index: 2000; /* Ensures it's above the panels */
+    
+    padding: 12px 24px;
+    background-color: #4CAF50; /* Green */
+    color: white;
+    font-family: 'Minecraft', sans-serif;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    transition: background-color 0.2s;
+}
+
+#floating-save-btn:hover {
+    background-color: #45a049;
 }
