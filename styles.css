@@ -1,200 +1,110 @@
-/* 1. Official Wiki Font Import */
-@import 'https://cdn.jsdelivr.net/gh/skyblock-wiki/wiki-assets@1.0/fonts/font-import/lib/wiki-use.css';
-
-/* 2. Global Reset */
+/* --- GLOBAL --- */
 body {
     margin: 0;
-    padding: 0;
-    background-color: #121212; /* Dark Editor Background */
+    height: 100vh;
+    background-color: #121212;
     color: #e0e0e0;
     font-family: 'Minecraft', sans-serif;
-    height: 100vh;
     overflow: hidden;
 }
 
-.container {
-    display: flex;
-    width: 100vw;
-    height: 100vh;
-}
-
-.panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-/* 3. Preview Panel Styling */
-.preview-panel {
-    background-color: #121212;
-    background-image:
-        linear-gradient(45deg, #1e1e1e 25%, transparent 25%),
-        linear-gradient(-45deg, #1e1e1e 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #1e1e1e 75%),
-        linear-gradient(-45deg, transparent 75%, #1e1e1e 75%);
-    background-size: 20px 20px;
-    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-    align-items: center;
-    justify-content: center;
-    border-right: 2px solid #121212;
-}
-
-/* THE AUTHENTIC WIKI BOX */
-/* derived strictly from load.php */
-
-/* AUTHENTISCHER WIKI TOOLTIP (Ohne Transparenz) */
-#minetip-tooltip {
-    display: inline-block;
-    position: relative;
-    z-index: 1000;
-    
-    /* FIX: Massive Farbe statt RGBA (Entfernt den "Glanz") */
-    background-color: #100010;
-    
-    margin: 0.125em 0.25em;
-    padding: 0.375em;
-    
-    font-family: 'Minecraft', sans-serif;
-    font-size: 16px;
-    line-height: 1.25em;
-    white-space: pre-wrap;
-    color: #fff;
-    text-shadow: 0.125em 0.125em #3F3F3F;
-    
-    border: none;
-    box-shadow: none;
-}
-
-#minetip-tooltip::before {
-    content: "";
-    position: absolute;
-    /* Der Rahmen ragt 2px (0.125em) heraus */
-    top: 0.125em;
-    bottom: 0.125em;
-    left: -0.125em;
-    right: -0.125em;
-    
-    border: 0.25em solid #100010;
-    border-style: none solid;
-    /* FIX: Massive Farbe für den inneren Rahmen */
-    border-color: #100010; 
-    pointer-events: none;
-    z-index: -1;
-}
-
-#minetip-tooltip::after {
-    content: "";
-    position: absolute;
-    top: 0.125em;
-    bottom: 0.125em;
-    left: 0;
-    right: 0;
-    
-    border: 0.125em solid #2D0A63;
-    border-image: linear-gradient(to bottom, rgba(80,0,255,0.31), rgba(40,0,127,0.31)) 1;
-    pointer-events: none;
-    z-index: 1;
-}
-
-#minetip-tooltip .minetip-title + .minetip-description {
-    display: block;
-    margin-top: 0.25em;
-}
-
-/* Fix: Ensure text sits above the border overlay (prevents "shiny" tint) */
-.minetip-title, .minetip-description {
-    position: relative;
-    z-index: 2;
-}
-
-/* 5. COLOR SYSTEM (With Custom Shadows from load.php) */
-/* Note: The Wiki uses specific shadow colors for readability, not just black */
-
-.format-0 { color: #000; text-shadow: 2px 2px 0 #000; }
-.format-1 { color: #00a; text-shadow: 2px 2px 0 #00002a; }
-.format-2 { color: #0a0; text-shadow: 2px 2px 0 #002a00; }
-.format-3 { color: #0aa; text-shadow: 2px 2px 0 #002a2a; }
-.format-4 { color: #a00; text-shadow: 2px 2px 0 #2a0000; }
-.format-5 { color: #a0a; text-shadow: 2px 2px 0 #2a002a; }
-.format-6 { color: #fa0; text-shadow: 2px 2px 0 #2a2a00; }
-.format-7 { color: #aaa; text-shadow: 2px 2px 0 #2a2a2a; }
-.format-8 { color: #555; text-shadow: 2px 2px 0 #151515; }
-.format-9 { color: #55f; text-shadow: 2px 2px 0 #15153f; }
-.format-a { color: #5f5; text-shadow: 2px 2px 0 #153f15; }
-.format-b { color: #5ff; text-shadow: 2px 2px 0 #153f3f; }
-.format-c { color: #f55; text-shadow: 2px 2px 0 #3f1515; } /* Red text gets Red shadow */
-.format-d { color: #f5f; text-shadow: 2px 2px 0 #3f153f; }
-.format-e { color: #ff5; text-shadow: 2px 2px 0 #3f3f15; }
-.format-f { color: #fff; text-shadow: 2px 2px 0 #3f3f3f; }
-
-/* Styles */
-.format-l { font-weight: bold; }
-.format-m { text-decoration: line-through; }
-.format-n { text-decoration: underline; }
-.format-o { font-style: italic; }
-
-/* 6. SYMBOLS (Fixed: Now they have size!) */
-.mc-symbol {
-    display: inline-block;
-    vertical-align: middle;
-    width: 16px;  /* Essential: Gives the symbol width */
-    height: 16px; /* Essential: Gives the symbol height */
-    
-    /* Essential: Tells the browser the sprite sheet is 256x256 pixels */
-    -webkit-mask-size: 256px 256px;
-    mask-size: 256px 256px;
-    
-    /* Ensures the color fills the symbol */
-    background-color: currentColor; 
-}
-
-/* 7. Editor & Toolbar Styles */
-.editor-panel {
-    background-color: #1e1e1e;
-}
-
-.toolbar {
-    height: 50px;
-    display: flex;
-    align-items: center;
-    padding: 0 10px;
-    background-color: #252526;
-    border-bottom: 1px solid #333;
-    overflow-x: auto;
-}
+.app-layout { display: flex; height: 100%; width: 100%; }
+.panel { flex: 1; display: flex; flex-direction: column; }
+.editor-panel { background-color: #1e1e1e; border-left: 2px solid #2d2d2d; }
 
 #code-editor {
     flex: 1;
-    width: 100%;
     background-color: #1e1e1e;
-    color: #e0e0e0;
-    font-family: 'Consolas', 'Courier New', monospace;
+    color: #f0f0f0;
+    font-family: 'Consolas', monospace;
     font-size: 14px;
     border: none;
-    resize: none;
     padding: 20px;
+    resize: none;
     outline: none;
 }
 
-/* SAVE BUTTON STYLING */
-#floating-save-btn {
-    position: fixed; /* Floats on top of everything */
-    bottom: 20px;
-    right: 20px;
-    z-index: 2000; /* Ensures it's above the panels */
-    
-    padding: 12px 24px;
-    background-color: #4CAF50; /* Green */
-    color: white;
+/* --- PREVIEW PANEL --- */
+.preview-panel {
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background-color: #101010;
+    background-image: 
+        linear-gradient(#1a1a1a 1px, transparent 1px),
+        linear-gradient(90deg, #1a1a1a 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+.preview-panel.white-mode { background-color: #ffffff; background-image: none; }
+
+/* Controls */
+.preview-controls {
+    position: absolute;
+    top: 20px; right: 20px;
+    z-index: 100;
+}
+.control-btn {
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.1);
+    color: #fff; border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px; cursor: pointer;
+    font-family: 'Minecraft', sans-serif;
+}
+.control-btn:hover { background: rgba(255,255,255,0.2); }
+.white-mode .control-btn { background: #e0e0e0; color: #333; border-color: #ccc; }
+
+/* --- TOOLTIP BOX --- */
+.tooltip-box {
+    display: inline-block;
+    position: relative;
+    background-color: #100010;
+    margin: 10px; 
+}
+.tooltip-content {
+    position: relative;
+    z-index: 5;
+    padding: 6px 8px;
+    color: #ffffff;
     font-family: 'Minecraft', sans-serif;
     font-size: 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    transition: background-color 0.2s;
+    line-height: 20px;
+    white-space: pre-wrap;
+    text-shadow: 2px 2px 0px #3f3f3f;
 }
 
-#floating-save-btn:hover {
-    background-color: #45a049;
+/* Borders */
+.line { position: absolute; z-index: 2; }
+.p-top { top: 0; left: 2px; right: 2px; height: 2px; background: #300090; }
+.p-bottom { bottom: 0; left: 2px; right: 2px; height: 2px; background: #300090; }
+.p-left { top: 2px; bottom: 2px; left: 0; width: 2px; background: #300090; }
+.p-right { top: 2px; bottom: 2px; right: 0; width: 2px; background: #300090; }
+.b-top { top: -2px; left: 2px; right: 2px; height: 2px; background: #100010; }
+.b-bottom { bottom: -2px; left: 2px; right: 2px; height: 2px; background: #100010; }
+.b-left { top: 2px; bottom: 2px; left: -2px; width: 2px; background: #100010; }
+.b-right { top: 2px; bottom: 2px; right: -2px; width: 2px; background: #100010; }
+
+/* --- SYMBOLS --- */
+.mc-symbol {
+    display: inline-block; 
+    
+    /* FIX: Positioning & Size */
+    vertical-align: middle; 
+    width: 16px; height: 16px;
+    background-color: currentColor;
+    -webkit-mask-size: 256px 256px; mask-size: 256px 256px;
+    
+    /* 10% Bigger */
+    transform: scale(1.1);
+    
+    /* Moved Up */
+    position: relative;
+    top: -2px; 
+    
+    margin: 0 1px;
 }
+
+.obfuscated, .s-k { display: inline-block; width: auto; }
+
+/* Colors */
+.c-0{color:#000;text-shadow:2px 2px #000}.c-1{color:#00a;text-shadow:2px 2px #002a00}.c-2{color:#0a0;text-shadow:2px 2px #002a00}.c-3{color:#0aa;text-shadow:2px 2px #002a2a}.c-4{color:#a00;text-shadow:2px 2px #2a0000}.c-5{color:#a0a;text-shadow:2px 2px #2a002a}.c-6{color:#fa0;text-shadow:2px 2px #2a2a00}.c-7{color:#aaa;text-shadow:2px 2px #2a2a2a}.c-8{color:#555;text-shadow:2px 2px #151515}.c-9{color:#55f;text-shadow:2px 2px #15153f}.c-a{color:#5f5;text-shadow:2px 2px #153f15}.c-b{color:#5ff;text-shadow:2px 2px #153f3f}.c-c{color:#f55;text-shadow:2px 2px #3f1515}.c-d{color:#f5f;text-shadow:2px 2px #3f153f}.c-e{color:#ff5;text-shadow:2px 2px #3f3f15}.c-f{color:#fff;text-shadow:2px 2px #3f3f3f}
+.s-l{font-weight:bold}.s-m{text-decoration:line-through}.s-n{text-decoration:underline}.s-o{font-style:italic}

@@ -1,206 +1,150 @@
 /* --- CONFIGURATION --- */
-// TRUE: Use your local "unicode_page_XX.png" images for symbols (Game Authentic)
-// FALSE: Use the downloaded font for symbols (Wiki Authentic)
-const USE_SPRITE_MASKS = true; 
-
-/* --- MAIN LOGIC --- */
+const USE_MASKS = true;
 
 document.addEventListener('DOMContentLoaded', () => {
     const editor = document.getElementById('code-editor');
+    const bgToggle = document.getElementById('bg-toggle-btn');
+    const previewPanel = document.getElementById('preview-panel');
 
-    if (editor) {
-        editor.addEventListener('input', updatePreview);
-        // Force an initial render
-        updatePreview();
+    if (editor) editor.addEventListener('input', () => render(editor.value));
+
+    if (bgToggle && previewPanel) {
+        bgToggle.addEventListener('click', () => {
+            previewPanel.classList.toggle('white-mode');
+        });
     }
+
+    if (editor) render(editor.value);
+
+    // Start the Magic Text Animator
+    startObfuscation();
 });
 
-function updatePreview() {
-    const editor = document.getElementById('code-editor');
-    const previewContainer = document.getElementById('item-tooltip'); 
-    
-    if (!editor || !previewContainer) return;
-
-    let json = null;
+function render(jsonString) {
+    const container = document.getElementById('item-tooltip');
+    if (!container) return;
 
     try {
-        // 1. Try to parse the JSON
-        json = JSON.parse(editor.value);
+        const data = JSON.parse(jsonString);
+        let name = data.name || (data.tag?.display?.Name) || "";
+        let lore = data.Lore || (data.tag?.display?.Lore) || [];
         
-        // If successful, remove error styling
-        editor.style.borderColor = ""; 
-        editor.style.backgroundColor = "#1e1e1e";
+        // --- IMPROVED RECOMB DETECTION ---
+        const isRecomb = (data.recomb === true) || 
+                         (data.recombobulated === true) ||
+                         // Check nested NBT (common in API dumps)
+                         (data.tag?.ExtraAttributes?.rarity_upgrades > 0) || 
+                         // Check lower camelCase root (common in mod dumps)
+                         (data.extraAttributes?.rarity_upgrades > 0) ||
+                         // Check PascalCase root (Your JSON format)
+                         (data.ExtraAttributes?.rarity_upgrades > 0);
+
+        if (isRecomb && lore.length > 0) {
+            lore = [...lore]; // Safety copy
+            const lastLine = lore[lore.length - 1];
+            
+            // Recomb Logic: Wrap the last line in Magic (§k) characters
+            // "M" is the placeholder that gets scrambled
+            lore[lore.length - 1] = `§kM §r${lastLine} §kM`;
+        }
+        // -------------------------------
+
+        // Build HTML
+        let html = `<div class="tooltip-box">`;
+        
+        // 8-Line Border System
+        html += `<div class="line p-top"></div><div class="line p-bottom"></div><div class="line p-left"></div><div class="line p-right"></div>`;
+        html += `<div class="line b-top"></div><div class="line b-bottom"></div><div class="line b-left"></div><div class="line b-right"></div>`;
+
+        // Content
+        html += `<div class="tooltip-content">`;
+        html += `<span class="tooltip-title">${parseText(name)}</span>`;
+        
+        if (lore.length > 0) {
+            html += `<span class="tooltip-lore">`;
+            lore.forEach((line, i) => {
+                if(i > 0) html += `<br>`;
+                html += parseText(line);
+            });
+            html += `</span>`;
+        }
+        
+        html += `</div></div>`; 
+
+        container.innerHTML = html;
+        document.getElementById('code-editor').style.borderLeft = "none"; 
 
     } catch (e) {
-        // 2. If JSON is invalid, show visual error
-        console.error("JSON Error:", e);
-        editor.style.borderColor = "#ff5555";
-        editor.style.backgroundColor = "#2a1a1a";
-        
-        // Optional: Don't update preview if invalid, OR show an error item
-        // return; 
+        document.getElementById('code-editor').style.borderLeft = "2px solid #ff5555";
     }
-
-    // 3. Extract Data (Use fallback if json is null)
-    let name = "&cError: Invalid JSON";
-    let lore = ["&7Check your spelling,", "&7quotes, and commas!"];
-    
-    if (json) {
-        if (json.tag && json.tag.display) {
-            // NBT Format
-            name = json.tag.display.Name || "";
-            lore = json.tag.display.Lore || [];
-        } else {
-            // Simple Format
-            name = json.name || "";
-            lore = json.Lore || json.lore || [];
-        }
-    }
-
-    // 4. Render
-    renderWikiTooltip(name, lore);
 }
 
-function renderWikiTooltip(name, lore) {
-    const container = document.getElementById('item-tooltip');
-    
-    let html = `<div id="minetip-tooltip">`;
-
-    // Title
-    html += `<span class="minetip-title">${parseWikiText(name)}</span>`;
-
-    // Lore
-    if (lore && lore.length > 0) {
-        html += `<span class="minetip-description">`;
-        lore.forEach((line, index) => {
-            if (index > 0) html += `<br>`;
-            html += parseWikiText(line);
-        });
-        html += `</span>`;
-    }
-
-    html += `</div>`;
-    
-    container.innerHTML = html;
-}
-
-function parseWikiText(text) {
+function parseText(text) {
     if (!text) return "";
-
-    let output = "";
     const parts = text.split(/([§&][0-9a-fk-or])/gi);
-
-    let currentColor = "f"; 
-    let formats = new Set(); 
+    let output = "";
+    let color = "f";
+    let styles = new Set();
 
     parts.forEach(part => {
         if (part.match(/^[§&][0-9a-fk-or]$/i)) {
-            const code = part.charAt(1).toLowerCase();
+            const code = part[1].toLowerCase();
             if (/[0-9a-f]/.test(code)) {
-                currentColor = code;
-                formats.clear();
-            } else if (code === 'l') formats.add('l');
-            else if (code === 'o') formats.add('o');
-            else if (code === 'n') formats.add('n');
-            else if (code === 'm') formats.add('m');
-            else if (code === 'k') formats.add('k');
-            else if (code === 'r') {
-                currentColor = 'f';
-                formats.clear();
+                color = code;
+                styles.clear();
+            } else if (code === 'r') {
+                color = 'f';
+                styles.clear();
+            } else {
+                styles.add(code); 
             }
         } else if (part !== "") {
-            let classes = [`format-${currentColor}`];
-            formats.forEach(f => classes.push(`format-${f}`));
-
-            let processedText = "";
+            let cls = [`c-${color}`];
+            styles.forEach(s => cls.push(`s-${s}`));
+            
+            let content = "";
             for (const char of part) {
                 const cp = char.codePointAt(0);
-                if (cp > 255 && USE_SPRITE_MASKS) {
-                    const page = cp >> 8;
+                if (cp > 255 && USE_MASKS) {
+                    const page = (cp >> 8).toString(16).padStart(2, '0');
                     const row = (cp >> 4) & 0xF;
                     const col = cp & 0xF;
-                    const pageHex = page.toString(16).toLowerCase().padStart(2, '0');
-                    const xPos = -(col * 16);
-                    const yPos = -(row * 16);
-
-                    // Ensure this path matches your folder: "fonts/"
-                    processedText += `<span class="mc-symbol ${classes.join(' ')}" style="
-                        -webkit-mask-image: url('fonts/unicode_page_${pageHex}.png');
-                        mask-image: url('fonts/unicode_page_${pageHex}.png');
-                        -webkit-mask-position: ${xPos}px ${yPos}px;
-                        mask-position: ${xPos}px ${yPos}px;
+                    content += `<span class="mc-symbol ${cls.join(' ')}" style="
+                        -webkit-mask-image: url('fonts/unicode_page_${page}.png');
+                        mask-image: url('fonts/unicode_page_${page}.png');
+                        -webkit-mask-position: -${col * 16}px -${row * 16}px;
+                        mask-position: -${col * 16}px -${row * 16}px;
                     "></span>`;
                 } else {
-                    processedText += char;
+                    content += char;
                 }
             }
-            output += `<span class="${classes.join(' ')}">${processedText}</span>`;
+            
+            // Add 'obfuscated' class for animation if §k is present
+            if (styles.has('k')) {
+                output += `<span class="obfuscated ${cls.join(' ')}">${content}</span>`;
+            } else {
+                output += `<span class="${cls.join(' ')}">${content}</span>`;
+            }
         }
     });
-
     return output;
 }
 
-/* --- SAVE AS PNG FEATURE --- */
-
-document.addEventListener('DOMContentLoaded', () => {
-    const saveBtn = document.getElementById('floating-save-btn');
-    if (saveBtn) {
-        saveBtn.addEventListener('click', saveTooltipAsPng);
-    }
-});
-
-function saveTooltipAsPng() {
-    const element = document.getElementById('minetip-tooltip');
-    if (!element) return;
-
-    if (typeof htmlToImage === 'undefined') {
-        alert("Fehler: Image-Library nicht geladen.");
-        return;
-    }
-
-    const rect = element.getBoundingClientRect();
+/* --- ANIMATION ENGINE --- */
+function startObfuscation() {
+    // Magic characters pool
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
     
-    // DEINE ANPASSUNG:
-    // Standard-Rahmenbreite ist 2px.
-    // Wir nehmen Oben/Links den Standard (2px).
-    // Rechts 1px weniger -> 1px.
-    // Unten 2px weniger -> 0px.
-    const padTop = 2;
-    const padLeft = 2;
-    const padRight = 2; 
-    const padBottom = 0; 
-
-    htmlToImage.toPng(element, {
-        quality: 1.0,
-        pixelRatio: 4,
+    setInterval(() => {
+        const magicElements = document.querySelectorAll('.s-k, .obfuscated');
         
-        // Berechne exakte Leinwandgröße
-        width: rect.width + padLeft + padRight,
-        height: rect.height + padTop + padBottom,
-        
-        backgroundColor: null, 
-
-        style: {
-            // Schiebe das Element passend zum linken/oberen Padding
-            transform: `translate(${padLeft}px, ${padTop}px)`,
-            
-            margin: '0',
-            // FIX: Erzwinge massiven Hintergrund für den Export
-            backgroundColor: '#100010', 
-            opacity: '1',
-            boxSizing: 'border-box',
-            boxShadow: 'none'
-        }
-    })
-    .then(function (dataUrl) {
-        const link = document.createElement('a');
-        link.download = 'tooltip.png';
-        link.href = dataUrl;
-        link.click();
-    })
-    .catch(function (error) {
-        console.error('Export Error:', error);
-        alert("Export fehlgeschlagen! Bitte 'Live Server' nutzen.");
-    });
+        magicElements.forEach(el => {
+            let newText = "";
+            for(let i=0; i < el.innerText.length; i++) {
+                newText += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            el.innerText = newText;
+        });
+    }, 50);
 }
