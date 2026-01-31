@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Editor</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/skyblock-wiki/wiki-assets@1.0/fonts/font-import/lib/wiki-use.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Left Panel: Preview -->
+        <div class="panel preview-panel">
+            <div id="item-tooltip">
+                <!-- Tooltip content will go here -->
+                <p style="color: #aaa; text-align: center;">Preview Area</p>
+            </div>
+        </div>
+
+        <!-- Right Panel: Editor -->
+        <div class="panel editor-panel">
+            <div class="toolbar" id="toolbar"></div>
+            <textarea id="code-editor" spellcheck="false" placeholder="// Paste your JSON here..."></textarea>
+        </div>
+    </div>
+    <button id="floating-save-btn">Save PNG</button>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

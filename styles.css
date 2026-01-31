@@ -1,0 +1,158 @@
+@import 'https://cdn.jsdelivr.net/gh/skyblock-wiki/wiki-assets@1.0/fonts/font-import/lib/wiki-use.css';
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Minecraft', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.container {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+}
+
+.panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Left Panel: Preview */
+.preview-panel {
+    background-color: #121212;
+    /* Checkerboard pattern */
+    background-image:
+        linear-gradient(45deg, #1e1e1e 25%, transparent 25%),
+        linear-gradient(-45deg, #1e1e1e 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #1e1e1e 75%),
+        linear-gradient(-45deg, transparent 75%, #1e1e1e 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    
+    align-items: center;
+    justify-content: center;
+    border-right: 2px solid #121212;
+}
+
+#item-tooltip {
+    padding: 4px 4px 4px 4px;
+    background-color: rgba(16, 0, 16, 0.95);
+    box-shadow: 
+        inset 1px 1px 0px 0px #5000ff,
+        inset -1px -1px 0px 0px #28007f,
+        2px 0px 0px 0px #110011,
+        -2px 0px 0px 0px #110011,
+        0px 2px 0px 0px #110011,
+        0px -2px 0px 0px #110011;
+    margin: 2px;
+    min-width: 200px;
+    font-family: 'Minecraft', sans-serif;
+    font-size: 16px;
+    text-shadow: 2px 2px 0px #111;
+    color: #ffffff;
+    line-height: 19px;
+    white-space: pre-wrap; /* Preserve newlines in lore */
+}
+
+#item-tooltip div {
+    margin-bottom: 2px;
+}
+
+/* Right Panel: Editor */
+.editor-panel {
+    background-color: #1e1e1e;
+}
+
+.toolbar {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    background-color: #252526;
+    border-bottom: 1px solid #333;
+}
+
+#code-editor {
+    flex: 1;
+    width: 100%;
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 14px;
+    border: none;
+    resize: none;
+    padding: 20px;
+    outline: none;
+}
+
+/* Minecraft Color Codes */
+.mc-0 { color: #000000; }
+.mc-1 { color: #0000AA; }
+.mc-2 { color: #00AA00; }
+.mc-3 { color: #00AAAA; }
+.mc-4 { color: #AA0000; }
+.mc-5 { color: #AA00AA; }
+.mc-6 { color: #FFAA00; }
+.mc-7 { color: #AAAAAA; }
+.mc-8 { color: #555555; }
+.mc-9 { color: #5555FF; }
+.mc-a { color: #55FF55; }
+.mc-b { color: #55FFFF; }
+.mc-c { color: #FF5555; }
+.mc-d { color: #FF55FF; }
+.mc-e { color: #FFFF55; }
+.mc-f { color: #FFFFFF; }
+
+/* Minecraft Formatting Codes */
+.mc-k { font-family: monospace; } /* Obfuscated (simplified) */
+.mc-l { font-weight: bold; }
+.mc-m { text-decoration: line-through; }
+.mc-n { text-decoration: underline; }
+.mc-o { font-style: italic; }
+.mc-r { color: inherit; font-weight: normal; font-style: normal; text-decoration: none; }
+
+/* Unicode Symbols */
+.mc-symbol {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    vertical-align: middle;
+    background-color: currentColor;
+    -webkit-mask-size: 256px 256px;
+    mask-size: 256px 256px;
+    image-rendering: pixelated;
+    text-shadow: none;
+}
+
+#code-editor.error {
+    outline: 1px solid #ff5555;
+}
+
+#floating-save-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 24px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: sans-serif;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    z-index: 1000;
+}
+
+#floating-save-btn:hover {
+    background-color: #45a049;
+}
