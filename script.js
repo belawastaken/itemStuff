@@ -432,8 +432,8 @@ function parseText(text) {
                     const row = (cp >> 4) & 0xF;
                     const col = cp & 0xF;
                     output += `<span class="mc-symbol ${baseClass}" style="
-                        -webkit-mask-image: url('fonts/unicode_page_${page}.png');
-                        mask-image: url('fonts/unicode_page_${page}.png');
+                        -webkit-mask-image: url('images/unicode_page_${page}.png');
+                        mask-image: url('images/unicode_page_${page}.png');
                         -webkit-mask-position: -${col * 16}px -${row * 16}px;
                         mask-position: -${col * 16}px -${row * 16}px;
                     "></span>`;

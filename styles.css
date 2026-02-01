@@ -219,7 +219,7 @@ body {
 .mc-obfuscated {
     display: inline-block; vertical-align: bottom; height: 16px;
     background-color: currentColor;
-    -webkit-mask-image: url('fonts/ascii.png'); mask-image: url('fonts/ascii.png');
+    -webkit-mask-image: url('images/ascii.png'); mask-image: url('images/ascii.png');
     image-rendering: pixelated; 
     -webkit-mask-size: 256px 256px; mask-size: 256px 256px;
 }
