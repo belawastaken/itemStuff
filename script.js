@@ -1,6 +1,12 @@
 /* --- CONFIGURATION --- */
 const USE_MASKS = true;
 let AUTO_FIX_ARTIFACTS = true;
+let AUTO_CLEAN_PASTE = false;
+let PRETTY_MODE = false; 
+
+// VIEW TOGGLES
+let SHOW_GEAR_SCORE = true;
+let SHOW_BRACKETS = true;
 
 // 1. STANDARD MINECRAFT FONT WIDTHS
 const CHAR_WIDTHS = {
@@ -16,40 +22,99 @@ const CHAR_WIDTHS = {
     default: 6
 };
 
-// 2. KNOWN RARITIES
-const RARITIES = [
-    "VERY SPECIAL", "UNCOMMON", "LEGENDARY", "SPECIAL", 
-    "COMMON", "DIVINE", "DEVINE", "MYTHIC", "RARE", "EPIC"
-];
+const RARITIES = ["VERY SPECIAL", "UNCOMMON", "LEGENDARY", "SPECIAL", "COMMON", "DIVINE", "DEVINE", "MYTHIC", "RARE", "EPIC"];
+const ROMAN_MAP = { "I": 1, "II": 2, "III": 3, "IV": 4, "V": 5, "VI": 6, "VII": 7, "VIII": 8, "IX": 9, "X": 10 };
+
+let isSimpleMode = false;
+let cachedJSON = {};
+let lastFocusedInput = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     const editor = document.getElementById('code-editor');
+    const simpleEditor = document.getElementById('simple-editor');
+    const simpleName = document.getElementById('simple-name');
+    const simpleLore = document.getElementById('simple-lore');
+    const modeBtn = document.getElementById('mode-toggle-btn');
     const bgToggle = document.getElementById('bg-toggle-btn');
     const magicToggle = document.getElementById('magic-toggle-btn');
+    const cleanToggle = document.getElementById('clean-toggle-btn');
+    const prettyToggle = document.getElementById('pretty-toggle-btn');
+    const btnGS = document.getElementById('btn-toggle-gs');
+    const btnBrackets = document.getElementById('btn-toggle-brackets');
     const previewPanel = document.getElementById('preview-panel');
+    
+    const symbolBtns = document.querySelectorAll('.symbol-btn');
+
+    if (localStorage.getItem('autoCleanPaste') === 'true') {
+        AUTO_CLEAN_PASTE = true;
+        if (cleanToggle) {
+            cleanToggle.innerText = "🧹 Clean: ON";
+            cleanToggle.classList.add('active');
+        }
+    }
+    if (localStorage.getItem('prettyMode') === 'true') {
+        PRETTY_MODE = true;
+        if (prettyToggle) {
+            prettyToggle.innerText = "✨ Pretty: ON";
+            prettyToggle.classList.add('active');
+        }
+    }
+
+    if (editor) editor.addEventListener('input', () => render(editor.value));
+
+    if (simpleName) {
+        simpleName.addEventListener('focus', () => { lastFocusedInput = simpleName; });
+        simpleName.addEventListener('input', updateFromSimple);
+    }
+    if (simpleLore) {
+        simpleLore.addEventListener('focus', () => { lastFocusedInput = simpleLore; });
+        simpleLore.addEventListener('input', updateFromSimple);
+    }
+
+    symbolBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const char = btn.getAttribute('data-insert');
+            const target = lastFocusedInput || simpleLore; 
+            
+            if (target) {
+                const start = target.selectionStart;
+                const end = target.selectionEnd;
+                const text = target.value;
+                
+                target.value = text.substring(0, start) + char + text.substring(end);
+                target.selectionStart = target.selectionEnd = start + char.length;
+                target.focus();
+                
+                updateFromSimple();
+            }
+        });
+    });
 
     if (editor) {
-        editor.addEventListener('input', () => render(editor.value));
-        
-        // --- PASTE HANDLER ---
         editor.addEventListener('paste', (e) => {
+            if (isSimpleMode) return; 
             const text = (e.clipboardData || window.clipboardData).getData('text');
             try {
-                const json = JSON.parse(text);
+                let json = JSON.parse(text);
+
+                if (AUTO_CLEAN_PASTE) {
+                    const clean = {};
+                    let foundData = false;
+                    let srcName = json.name || json.tag?.display?.Name;
+                    let srcLore = json.Lore || json.tag?.display?.Lore;
+                    if (srcName) { clean.name = srcName; foundData = true; }
+                    if (srcLore) { clean.Lore = srcLore; foundData = true; }
+                    if (foundData) json = clean;
+                }
+
                 if (json.Lore && Array.isArray(json.Lore)) {
                     e.preventDefault(); 
-                    
-                    // Logic: Auto-insert space before rarity if magic artifacts exist
                     json.Lore = json.Lore.map(line => {
-                        const plain = line.replace(/§[0-9a-fk-or]/gi, "").trim();
-                        // Check for Start/End Artifacts (Strict Case Sensitive Check)
-                        // This prevents normal text lines from being flagged
-                        const hasMagicArtifacts = /^[aAv\-].*[aAv\-]$/.test(plain);
-
-                        if (hasMagicArtifacts) {
+                        const plain = line.replace(/§[0-9a-fk-orA-FK-OR]/gi, "").trim();
+                        const hasArtifacts = /^[aAv\-].*[aAv\-]$/.test(plain);
+                        if (hasArtifacts) {
                             for (const rarity of RARITIES) {
                                 if (line.includes(rarity)) {
-                                    // Add Space ONLY if missing
                                     const regex = new RegExp(`(?<! )(${rarity})`, 'g');
                                     line = line.replace(regex, ' $1');
                                     break;
@@ -58,29 +123,95 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                         return line;
                     });
-
                     document.execCommand('insertText', false, JSON.stringify(json, null, 2));
                 }
             } catch (err) {}
         });
     }
 
-    if (bgToggle && previewPanel) {
-        bgToggle.addEventListener('click', () => {
-            previewPanel.classList.toggle('white-mode');
+    if (prettyToggle) {
+        prettyToggle.addEventListener('click', () => {
+            PRETTY_MODE = !PRETTY_MODE;
+            localStorage.setItem('prettyMode', PRETTY_MODE);
+            prettyToggle.innerText = PRETTY_MODE ? "✨ Pretty: ON" : "✨ Pretty: OFF";
+            prettyToggle.classList.toggle('active');
+            render(editor.value);
         });
     }
 
+    if (cleanToggle) {
+        cleanToggle.addEventListener('click', () => {
+            AUTO_CLEAN_PASTE = !AUTO_CLEAN_PASTE;
+            localStorage.setItem('autoCleanPaste', AUTO_CLEAN_PASTE);
+            cleanToggle.innerText = AUTO_CLEAN_PASTE ? "🧹 Clean: ON" : "🧹 Clean: OFF";
+            cleanToggle.classList.toggle('active');
+        });
+    }
+
+    if (btnGS) {
+        btnGS.addEventListener('click', () => {
+            SHOW_GEAR_SCORE = !SHOW_GEAR_SCORE;
+            btnGS.innerText = SHOW_GEAR_SCORE ? "GS: ON" : "GS: OFF";
+            btnGS.classList.toggle('active');
+            render(editor.value);
+        });
+    }
+
+    if (btnBrackets) {
+        btnBrackets.addEventListener('click', () => {
+            SHOW_BRACKETS = !SHOW_BRACKETS;
+            btnBrackets.innerText = SHOW_BRACKETS ? "Brackets: ON" : "Brackets: OFF";
+            btnBrackets.classList.toggle('active');
+            render(editor.value);
+        });
+    }
+
+    if (modeBtn) {
+        modeBtn.addEventListener('click', () => {
+            isSimpleMode = !isSimpleMode;
+            if (isSimpleMode) {
+                try {
+                    const json = JSON.parse(editor.value);
+                    cachedJSON = json; 
+                    let name = json.name || "";
+                    name = name.replace(/§/g, '&');
+                    let lore = json.Lore || [];
+                    lore = lore.map(l => l.replace(/§/g, '&')).join('\n');
+                    simpleName.value = name;
+                    simpleLore.value = lore;
+                    editor.style.display = 'none';
+                    simpleEditor.style.display = 'flex';
+                    modeBtn.innerText = "✎ Code Mode";
+                    modeBtn.classList.add('active');
+                } catch (e) {
+                    alert("Invalid JSON!");
+                    isSimpleMode = false;
+                }
+            } else {
+                editor.style.display = 'block';
+                simpleEditor.style.display = 'none';
+                modeBtn.innerText = "✎ Simple Mode";
+                modeBtn.classList.remove('active');
+            }
+        });
+    }
+
+    function updateFromSimple() {
+        const name = simpleName.value.replace(/&/g, '§');
+        const loreLines = simpleLore.value.split('\n').map(l => l.replace(/&/g, '§'));
+        cachedJSON.name = name;
+        cachedJSON.Lore = loreLines;
+        const newString = JSON.stringify(cachedJSON, null, 2);
+        editor.value = newString;
+        render(newString);
+    };
+
+    if (bgToggle) bgToggle.addEventListener('click', () => document.getElementById('preview-panel').classList.toggle('white-mode'));
     if (magicToggle) {
         magicToggle.addEventListener('click', () => {
             AUTO_FIX_ARTIFACTS = !AUTO_FIX_ARTIFACTS;
-            if (AUTO_FIX_ARTIFACTS) {
-                magicToggle.innerText = "★ Auto-Magic: ON";
-                magicToggle.classList.add('active');
-            } else {
-                magicToggle.innerText = "☆ Auto-Magic: OFF";
-                magicToggle.classList.remove('active');
-            }
+            magicToggle.innerText = AUTO_FIX_ARTIFACTS ? "★ Auto-Magic: ON" : "☆ Auto-Magic: OFF";
+            magicToggle.classList.toggle('active');
             if (editor) render(editor.value);
         });
     }
@@ -89,6 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
     startObfuscation();
 });
 
+/* --- RENDERER --- */
 function render(jsonString) {
     const container = document.getElementById('item-tooltip');
     if (!container) return;
@@ -98,19 +230,24 @@ function render(jsonString) {
         let name = data.name || (data.tag?.display?.Name) || "";
         let lore = data.Lore || (data.tag?.display?.Lore) || [];
         
-        // --- FIX: CASE-SENSITIVE REGEX ---
+        if (!SHOW_GEAR_SCORE) {
+            lore = lore.filter(line => !line.includes("Gear Score:"));
+        }
+
+        if (!SHOW_BRACKETS) {
+            lore = lore.map(line => {
+                return line.replace(/\s*§8\([^)]*\)/g, "").replace(/\s*&8\([^)]*\)/g, ""); 
+            });
+        }
+
+        if (PRETTY_MODE && typeof SKYBLOCK_DB !== 'undefined') {
+            lore = globalPrettifyLore(lore);
+        }
+
         if (AUTO_FIX_ARTIFACTS && lore.length > 0) {
             lore = lore.map(line => {
-                // 1. Removed '/i' flag (Case Sensitive)
-                // 2. Expanded Color Regex to [0-9a-fk-orA-FK-OR] manually
-                // 3. Artifact class [aAv\-] allows lowercase 'v' but ignores Uppercase 'V'
-                
-                // Fix Start
                 line = line.replace(/^((?:§[0-9a-fk-orA-FK-OR])+)((?:[aAv\-])+)(?=§)/, '$1§k$2');
-                
-                // Fix End
                 line = line.replace(/((?:§[0-9a-fk-orA-FK-OR])+)?((?:[aAv\-])+)$/, '$1§k$2');
-                
                 return line;
             });
         }
@@ -129,7 +266,6 @@ function render(jsonString) {
             });
             html += `</div>`;
         }
-        
         html += `</div></div>`; 
         container.innerHTML = html;
         document.getElementById('code-editor').style.borderLeft = "none"; 
@@ -137,6 +273,108 @@ function render(jsonString) {
     } catch (e) {
         document.getElementById('code-editor').style.borderLeft = "2px solid #ff5555";
     }
+}
+
+function globalPrettifyLore(lore) {
+    let newLore = [];
+    let collectedEnchants = [];
+    let enchantStartIndex = -1;
+    let foundEnchants = false;
+
+    for (let i = 0; i < lore.length; i++) {
+        let line = lore[i];
+        
+        if (line.includes(":") || line.includes("Gear Score") || line.includes("Damage")) {
+            if (!foundEnchants) newLore.push(line);
+            else if (collectedEnchants.length > 0) {
+                newLore = newLore.concat(formatEnchantBlock(collectedEnchants));
+                collectedEnchants = [];
+                newLore.push(line);
+            } else {
+                newLore.push(line);
+            }
+            continue;
+        }
+
+        if (containsEnchant(line)) {
+            if (enchantStartIndex === -1) enchantStartIndex = i;
+            foundEnchants = true;
+            
+            const parts = line.split(',').map(p => p.trim());
+            parts.forEach(p => collectedEnchants.push(p));
+        } else {
+            if (collectedEnchants.length > 0) {
+                newLore = newLore.concat(formatEnchantBlock(collectedEnchants));
+                collectedEnchants = [];
+            }
+            newLore.push(line);
+        }
+    }
+
+    if (collectedEnchants.length > 0) {
+        newLore = newLore.concat(formatEnchantBlock(collectedEnchants));
+    }
+
+    return newLore;
+}
+
+function containsEnchant(line) {
+    const plain = line.replace(/§[0-9a-fk-orA-FK-OR]/gi, "");
+    if (/[IVX0-9]+$/.test(plain)) return true;
+    return false;
+}
+
+function formatEnchantBlock(enchants) {
+    let ultimates = [];
+    let stackings = [];
+    let normals = [];
+
+    enchants.forEach(part => {
+        const plain = part.replace(/§[0-9a-fk-orA-FK-OR]/gi, "").trim();
+        const match = plain.match(/^(.*?)\s+([IVX0-9]+)$/);
+        
+        let bucket = "normal";
+
+        if (match) {
+            const name = match[1].trim();
+            const levelStr = match[2];
+            const level = ROMAN_MAP[levelStr] || parseInt(levelStr) || 0;
+
+            const ultEntry = SKYBLOCK_DB.ultimate.find(u => u.name === name);
+            if (ultEntry) {
+                if (level >= ultEntry.min && level <= ultEntry.max) bucket = "ultimate";
+            }
+
+            if (SKYBLOCK_DB.stacking.includes(name)) {
+                if (level >= 1 && level <= 10) bucket = "stacking";
+            }
+
+            const normEntry = SKYBLOCK_DB.normal.find(n => n.name === name);
+            if (normEntry) {
+                if (level >= normEntry.min && level <= normEntry.max) bucket = "normal";
+            }
+        }
+
+        if (bucket === "ultimate") ultimates.push(part);
+        else if (bucket === "stacking") stackings.push(part);
+        else normals.push(part);
+    });
+
+    const sorted = [...new Set([...ultimates, ...stackings, ...normals])];
+    
+    const resultLines = [];
+    let chunk = [];
+    
+    for (let i = 0; i < sorted.length; i++) {
+        chunk.push(sorted[i]);
+        if (chunk.length === 3) {
+            resultLines.push(chunk.join(', '));
+            chunk = [];
+        }
+    }
+    if (chunk.length > 0) resultLines.push(chunk.join(', '));
+    
+    return resultLines;
 }
 
 function parseText(text) {
@@ -168,7 +406,7 @@ function parseText(text) {
         let baseClass = cls.join(' ');
 
         if (styles.has('k')) {
-            // MAGIC TEXT (Phantom Overlay)
+            // GRID OVERLAY METHOD
             for (const char of part) {
                 if (char === ' ') {
                     output += `<span class="${baseClass}"> </span>`;
@@ -185,7 +423,6 @@ function parseText(text) {
                 }
             }
         } else {
-            // NORMAL TEXT
             let content = "";
             for (const char of part) {
                 const cp = char.codePointAt(0);
@@ -210,7 +447,6 @@ function parseText(text) {
     return output;
 }
 
-/* --- ANIMATION ENGINE --- */
 const POOLS = {};
 const CHARS = "abcdefghjknopqrstuvxyzABCDEFGHJKLMNOPQRSTUVWXYZ1234567890?#$%^&*()[]{}-=_+<>\"';:,.|~`@!\\/";
 const EXTENDED = "ÀÁÂÃÄÅÇÈÉÊËÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåçèéêëðñòóôõöøùúûüýþÿ";

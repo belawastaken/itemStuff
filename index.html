@@ -12,13 +12,24 @@
     <div class="app-layout">
         <div class="panel preview-panel" id="preview-panel">
             <div class="preview-controls">
-                <button id="bg-toggle-btn" class="control-btn">◑ Toggle BG</button>
-                <button id="magic-toggle-btn" class="control-btn active">★ Auto-Magic: ON</button>
+                <div class="control-row">
+                    <button id="bg-toggle-btn" class="control-btn">◑ BG</button>
+                    <button id="magic-toggle-btn" class="control-btn active">★ Magic</button>
+                    <button id="pretty-toggle-btn" class="control-btn">✨ Pretty</button>
+                    <button id="clean-toggle-btn" class="control-btn">🧹 Clean</button>
+                    <button id="btn-toggle-gs" class="control-btn active">GS: ON</button>
+                    <button id="btn-toggle-brackets" class="control-btn active">Brackets: ON</button>
+                </div>
             </div>
             <div id="item-tooltip"></div>
         </div>
 
         <div class="panel editor-panel">
+            <div class="editor-header">
+                <span class="editor-title">Item Data</span>
+                <button id="mode-toggle-btn" class="control-btn">✎ Simple Mode</button>
+            </div>
+
             <textarea id="code-editor" spellcheck="false">{
   "name": "§r§dPrecise Terminator §r§6✪✪✪✪✪§r§c➎",
   "Lore": [
@@ -28,9 +39,58 @@
     "§r§d§la§r§d§l MYTHIC DUNGEON BOW §r§d§la"
   ]
 }</textarea>
+
+            <div id="simple-editor" style="display: none;">
+                <div class="symbol-toolbar">
+                    <button class="symbol-btn btn-gold" data-insert="&6✪" title="Gold Star">✪</button>
+                    <div class="separator"></div>
+                    <button class="symbol-btn btn-red" data-insert="&c➊" title="Master Star 1">➊</button>
+                    <button class="symbol-btn btn-red" data-insert="&c➋" title="Master Star 2">➋</button>
+                    <button class="symbol-btn btn-red" data-insert="&c➌" title="Master Star 3">➌</button>
+                    <button class="symbol-btn btn-red" data-insert="&c➍" title="Master Star 4">➍</button>
+                    <button class="symbol-btn btn-red" data-insert="&c➎" title="Master Star 5">➎</button>
+                    
+                    <div class="separator"></div>
+                    
+                    <button class="symbol-btn col-0" data-insert="&0" title="Black">0</button>
+                    <button class="symbol-btn col-1" data-insert="&1" title="Dark Blue">1</button>
+                    <button class="symbol-btn col-2" data-insert="&2" title="Dark Green">2</button>
+                    <button class="symbol-btn col-3" data-insert="&3" title="Dark Aqua">3</button>
+                    <button class="symbol-btn col-4" data-insert="&4" title="Dark Red">4</button>
+                    <button class="symbol-btn col-5" data-insert="&5" title="Dark Purple">5</button>
+                    <button class="symbol-btn col-6" data-insert="&6" title="Gold">6</button>
+                    <button class="symbol-btn col-7" data-insert="&7" title="Gray">7</button>
+                    <button class="symbol-btn col-8" data-insert="&8" title="Dark Gray">8</button>
+                    <button class="symbol-btn col-9" data-insert="&9" title="Blue">9</button>
+                    <button class="symbol-btn col-a" data-insert="&a" title="Green">a</button>
+                    <button class="symbol-btn col-b" data-insert="&b" title="Aqua">b</button>
+                    <button class="symbol-btn col-c" data-insert="&c" title="Red">c</button>
+                    <button class="symbol-btn col-d" data-insert="&d" title="Light Purple">d</button>
+                    <button class="symbol-btn col-e" data-insert="&e" title="Yellow">e</button>
+                    <button class="symbol-btn col-f" data-insert="&f" title="White">f</button>
+
+                    <div class="separator"></div>
+
+                    <button class="symbol-btn fmt-l" data-insert="&l" title="Bold">l</button>
+                    <button class="symbol-btn fmt-m" data-insert="&m" title="Strikethrough">m</button>
+                    <button class="symbol-btn fmt-n" data-insert="&n" title="Underline">n</button>
+                    <button class="symbol-btn fmt-o" data-insert="&o" title="Italic">o</button>
+                    <button class="symbol-btn fmt-r" data-insert="&r" title="Reset">r</button>
+                </div>
+
+                <div class="input-group">
+                    <label>Name</label>
+                    <input type="text" id="simple-name" class="simple-input" spellcheck="false">
+                </div>
+                <div class="input-group full-height">
+                    <label>Lore</label>
+                    <textarea id="simple-lore" class="simple-textarea" spellcheck="false"></textarea>
+                </div>
+            </div>
         </div>
     </div>
 
+    <script src="database.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

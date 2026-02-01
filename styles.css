@@ -4,13 +4,14 @@ body {
     height: 100vh;
     background-color: #121212;
     color: #e0e0e0;
-    font-family: 'Minecraft', sans-serif;
+    /* UPDATE: Added fallback fonts for symbols to prevent "squares" in screenshots */
+    font-family: 'Minecraft', 'Segoe UI Symbol', 'DejaVu Sans', 'Symbola', sans-serif;
     overflow: hidden;
 }
 
 .app-layout { display: flex; height: 100%; width: 100%; }
 .panel { flex: 1; display: flex; flex-direction: column; }
-.editor-panel { background-color: #1e1e1e; border-left: 2px solid #2d2d2d; }
+.editor-panel { background-color: #1e1e1e; border-left: 2px solid #2d2d2d; padding: 0; }
 
 #code-editor {
     flex: 1;
@@ -22,7 +23,108 @@ body {
     padding: 20px;
     resize: none;
     outline: none;
+    width: 100%;
 }
+
+/* --- SIMPLE EDITOR --- */
+#simple-editor {
+    background-color: #1e1e1e;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 20px;
+    gap: 15px;
+}
+
+.input-group { display: flex; flex-direction: column; }
+.input-group.full-height { flex: 1; }
+.input-group label { font-size: 12px; color: #888; margin-bottom: 5px; }
+
+.simple-input, .simple-textarea {
+    background: #252526;
+    border: 1px solid #333;
+    color: #ddd;
+    padding: 10px;
+    font-family: 'Consolas', monospace;
+    font-size: 13px;
+    border-radius: 3px;
+    outline: none;
+}
+.simple-input:focus, .simple-textarea:focus { border-color: #555; }
+
+.simple-textarea {
+    flex: 1;
+    resize: none;
+    white-space: pre;
+}
+
+/* --- SYMBOL TOOLBAR --- */
+.symbol-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: #252526;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #333;
+    flex-wrap: wrap; 
+}
+
+.symbol-btn {
+    background: #333;
+    border: 1px solid #444;
+    color: #ddd;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Consolas', monospace;
+    transition: all 0.1s;
+}
+
+.symbol-btn:hover { transform: scale(1.1); z-index: 2; border-color: #777; }
+
+.separator {
+    width: 1px;
+    height: 20px;
+    background: #444;
+    margin: 0 4px;
+}
+
+/* SPECIAL BUTTONS */
+.btn-gold { color: #FFAA00; }
+.btn-red { color: #FF5555; }
+
+/* COLOR BUTTONS */
+.col-0 { color: #aaa; background: #000; border-color: #555; } 
+.col-1 { color: #0000AA; }
+.col-2 { color: #00AA00; }
+.col-3 { color: #00AAAA; }
+.col-4 { color: #AA0000; }
+.col-5 { color: #AA00AA; }
+.col-6 { color: #FFAA00; }
+.col-7 { color: #AAAAAA; }
+.col-8 { color: #555555; }
+.col-9 { color: #5555FF; }
+.col-a { color: #55FF55; }
+.col-b { color: #55FFFF; }
+.col-c { color: #FF5555; }
+.col-d { color: #FF55FF; }
+.col-e { color: #FFFF55; }
+.col-f { color: #FFFFFF; background: #444; } 
+
+/* FORMATTING BUTTONS */
+.fmt-l { font-weight: bold; }
+.fmt-m { text-decoration: line-through; }
+.fmt-n { text-decoration: underline; }
+.fmt-o { font-style: italic; }
+.fmt-r { color: #f55; }
+
 
 /* --- PREVIEW PANEL --- */
 .preview-panel {
@@ -37,18 +139,41 @@ body {
 }
 .preview-panel.white-mode { background-color: #ffffff; background-image: none; }
 
-.preview-controls { position: absolute; top: 20px; right: 20px; z-index: 100; }
-.control-btn {
-    padding: 8px 12px;
-    background: rgba(255,255,255,0.1);
-    color: #fff; border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 4px; cursor: pointer;
-    font-family: 'Minecraft', sans-serif;
+.preview-controls { 
+    position: absolute; 
+    top: 20px; 
+    left: 20px; 
+    z-index: 100; 
 }
-.control-btn:hover { background: rgba(255,255,255,0.2); }
+
+.control-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap; 
+}
+
+.control-btn {
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.1);
+    color: #ccc; 
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px; 
+    cursor: pointer;
+    font-family: 'Minecraft', sans-serif;
+    font-size: 12px;
+    min-width: 60px;
+    text-align: center;
+}
+.control-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+.control-btn.active {
+    background: rgba(85, 255, 85, 0.2); 
+    border-color: rgba(85, 255, 85, 0.5);
+    color: #aaffaa;
+    text-shadow: 0 0 5px rgba(85, 255, 85, 0.5);
+}
 .white-mode .control-btn { background: #e0e0e0; color: #333; border-color: #ccc; }
 
-/* --- TOOLTIP BOX --- */
+/* TOOLTIP & SYMBOLS */
 .tooltip-box {
     display: inline-block;
     position: relative;
@@ -60,18 +185,18 @@ body {
     z-index: 5;
     padding: 6px 8px;
     color: #ffffff;
-    font-family: 'Minecraft', sans-serif;
+    /* UPDATE: Explicit font stack here too */
+    font-family: 'Minecraft', 'Segoe UI Symbol', 'DejaVu Sans', 'Symbola', sans-serif;
     font-size: 16px;
     line-height: 20px;
     white-space: pre-wrap;
     text-shadow: 2px 2px 0px #3f3f3f;
 }
-
 .tooltip-title { display: block; margin-bottom: 8px; }
 .tooltip-lore { display: block; color: #aaaaaa; }
 
-/* Borders */
 .line { position: absolute; z-index: 2; }
+/* Standard MC Borders */
 .p-top { top: 0; left: 2px; right: 2px; height: 2px; background: #300090; }
 .p-bottom { bottom: 0; left: 2px; right: 2px; height: 2px; background: #300090; }
 .p-left { top: 2px; bottom: 2px; left: 0; width: 2px; background: #300090; }
@@ -81,56 +206,25 @@ body {
 .b-left { top: 2px; bottom: 2px; left: -2px; width: 2px; background: #100010; }
 .b-right { top: 2px; bottom: 2px; right: -2px; width: 2px; background: #100010; }
 
-/* --- SYMBOLS & MAGIC TEXT --- */
-
-/* 1. Static Symbols (Stars, Soulflow) */
 .mc-symbol {
-    display: inline-block; 
-    vertical-align: middle; 
+    display: inline-block; vertical-align: middle; 
     width: 16px; height: 16px;
-    
     background-color: currentColor;
-    -webkit-mask-image: var(--bg);
-    mask-image: var(--bg);
-    -webkit-mask-position: var(--pos);
-    mask-position: var(--pos);
-    -webkit-mask-size: 256px 256px;
-    mask-size: 256px 256px;
-    
-    transform: scale(1.1);
-    position: relative;
-    top: -2px; 
-    margin: 0 1px;
+    -webkit-mask-image: var(--bg); mask-image: var(--bg);
+    -webkit-mask-position: var(--pos); mask-position: var(--pos);
+    -webkit-mask-size: 256px 256px; mask-size: 256px 256px;
+    transform: scale(1.1); position: relative; top: -2px; margin: 0 1px;
 }
 
-/* 2. Magic / Obfuscated Text */
 .mc-obfuscated {
-    display: inline-block;
-    vertical-align: bottom; /* Aligns with text baseline */
-    height: 16px; /* Standard char height */
-    
-    /* THE FIX: Use Masking to define the shape, use BackgroundColor for the fill */
+    display: inline-block; vertical-align: bottom; height: 16px;
     background-color: currentColor;
-    
-    -webkit-mask-image: url('fonts/ascii.png');
-    mask-image: url('fonts/ascii.png');
-    
-    /* IMPORTANT: Crisp pixel art rendering */
+    -webkit-mask-image: url('fonts/ascii.png'); mask-image: url('fonts/ascii.png');
     image-rendering: pixelated; 
-    
-    -webkit-mask-size: 256px 256px; 
-    mask-size: 256px 256px;
-    
-    /* Width and MaskPosition are updated by JS per frame */
+    -webkit-mask-size: 256px 256px; mask-size: 256px 256px;
 }
 
-/* Colors */
+/* COLORS */
 .c-0{color:#000;text-shadow:2px 2px #000}.c-1{color:#00a;text-shadow:2px 2px #002a00}.c-2{color:#0a0;text-shadow:2px 2px #002a00}.c-3{color:#0aa;text-shadow:2px 2px #002a2a}.c-4{color:#a00;text-shadow:2px 2px #2a0000}.c-5{color:#a0a;text-shadow:2px 2px #2a002a}.c-6{color:#fa0;text-shadow:2px 2px #2a2a00}.c-7{color:#aaa;text-shadow:2px 2px #2a2a2a}.c-8{color:#555;text-shadow:2px 2px #151515}.c-9{color:#55f;text-shadow:2px 2px #15153f}.c-a{color:#5f5;text-shadow:2px 2px #153f15}.c-b{color:#5ff;text-shadow:2px 2px #153f3f}.c-c{color:#f55;text-shadow:2px 2px #3f1515}.c-d{color:#f5f;text-shadow:2px 2px #3f153f}.c-e{color:#ff5;text-shadow:2px 2px #3f3f15}.c-f{color:#fff;text-shadow:2px 2px #3f3f3f}
 .s-l{font-weight:bold}.s-m{text-decoration:line-through}.s-n{text-decoration:underline}.s-o{font-style:italic}
 
-.control-btn.active {
-    background: rgba(85, 255, 85, 0.2); /* Light Green tint */
-    border-color: rgba(85, 255, 85, 0.5);
-    color: #aaffaa;
-    text-shadow: 0 0 5px rgba(85, 255, 85, 0.5);
-}
