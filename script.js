@@ -1,5 +1,4 @@
 /* --- CONFIGURATION --- */
-const USE_MASKS = true;
 let AUTO_FIX_ARTIFACTS = true;
 let AUTO_CLEAN_PASTE = false;
 let PRETTY_MODE = false; 
@@ -41,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const prettyToggle = document.getElementById('pretty-toggle-btn');
     const btnGS = document.getElementById('btn-toggle-gs');
     const btnBrackets = document.getElementById('btn-toggle-brackets');
+    const btnSave = document.getElementById('btn-save-png');
     const previewPanel = document.getElementById('preview-panel');
     
     const symbolBtns = document.querySelectorAll('.symbol-btn');
@@ -163,6 +163,20 @@ document.addEventListener('DOMContentLoaded', () => {
             btnBrackets.innerText = SHOW_BRACKETS ? "Brackets: ON" : "Brackets: OFF";
             btnBrackets.classList.toggle('active');
             render(editor.value);
+        });
+    }
+
+    if (btnSave) {
+        btnSave.addEventListener('click', () => {
+            const element = document.getElementById('item-tooltip');
+            if (!element) return;
+            
+            html2canvas(element, { backgroundColor: null, scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'tooltip.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
         });
     }
 
@@ -423,25 +437,7 @@ function parseText(text) {
                 }
             }
         } else {
-            let content = "";
-            for (const char of part) {
-                const cp = char.codePointAt(0);
-                if (cp > 255 && USE_MASKS) {
-                    if (content) { output += `<span class="${baseClass}">${content}</span>`; content = ""; }
-                    const page = (cp >> 8).toString(16).padStart(2, '0');
-                    const row = (cp >> 4) & 0xF;
-                    const col = cp & 0xF;
-                    output += `<span class="mc-symbol ${baseClass}" style="
-                        -webkit-mask-image: url('images/unicode_page_${page}.png');
-                        mask-image: url('images/unicode_page_${page}.png');
-                        -webkit-mask-position: -${col * 16}px -${row * 16}px;
-                        mask-position: -${col * 16}px -${row * 16}px;
-                    "></span>`;
-                } else {
-                    content += char;
-                }
-            }
-            if (content) output += `<span class="${baseClass}">${content}</span>`;
+            output += `<span class="${baseClass}">${part}</span>`;
         }
     });
     return output;
