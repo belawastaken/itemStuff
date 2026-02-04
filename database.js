@@ -1,24 +1,140 @@
-/* --- SKYBLOCK DATABASE --- */
+/* --- SKYBLOCK DATABASE (Sourced from SkyblockAddons enchants.json) --- */
 
 const SKYBLOCK_DB = {
-    // 1. STACKING ENCHANTS
-    // Logic automatically accepts Levels 1-10 (I-X) for these.
-    // Just list the names.
-    stacking: [
-        "Toxophilite"
+    // 1. ULTIMATE ENCHANTS (Always Pink & Bold)
+    ultimate: [
+        "Bank", "Bobbin' Time", "Chimera", "Combo", "Crop Fever", "Duplex", 
+        "Fatal Tempo", "First Impression", "Flash", "Flowstate", "Habanero Tactics", 
+        "Inferno", "Last Stand", "Legion", "Missile", "No Pain No Gain", 
+        "One For All", "Refrigerate", "Rend", "Soul Eater", "Swarm", "The One", 
+        "Ultimate Jerry", "Ultimate Wise", "Wisdom"
     ],
 
-    // 2. ULTIMATE ENCHANTS
-    // Define Name, Min Level, and Max Level.
-    // Logic moves these to the very front.
-    ultimate: [
-        { name: "Soul Eater", min: 1, max: 5 }
+    // 2. STACKING ENCHANTS (Always Red)
+    stacking: [
+        "Absorb", "Champion", "Compact", "Cultivating", "Expertise", "Hecatomb", "Toxophilite"
     ],
 
     // 3. NORMAL ENCHANTS
-    // Define Name, Min Level, and Max Level.
-    // Logic sorts these after Stacking enchants.
-    normal: [
-        // Example format: { name: "Power", min: 1, max: 7 }
-    ]
+    // Logic: Level >= Max ? Chroma : (Level >= Good ? Gold : Blue)
+    normal: {
+        "Aiming": { good: 5, max: 5 },
+        "Angler": { good: 5, max: 6 },
+        "Aqua Affinity": { good: 1, max: 1 },
+        "Bane of Arthropods": { good: 5, max: 7 },
+        "Big Brain": { good: 5, max: 5 },
+        "Blast Protection": { good: 5, max: 7 },
+        "Blessing": { good: 5, max: 6 },
+        "Caster": { good: 5, max: 6 },
+        "Cayenne": { good: 0, max: 5 },
+        "Chance": { good: 3, max: 5 },
+        "Charm": { good: 0, max: 6 },
+        "Cleave": { good: 5, max: 6 },
+        "Corruption": { good: 0, max: 5 },
+        "Counter-Strike": { good: 0, max: 5 },
+        "Critical": { good: 5, max: 7 },
+        "Cubism": { good: 5, max: 6 },
+        "Dedication": { good: 0, max: 4 },
+        "Delicate": { good: 0, max: 5 },
+        "Depth Strider": { good: 3, max: 3 },
+        "Divine Gift": { good: 3, max: 3 },
+        "Dragon Tracer": { good: 5, max: 5 },
+        "Drain": { good: 3, max: 5 },
+        "Efficiency": { good: 5, max: 10 },
+        "Ender Slayer": { good: 5, max: 7 },
+        "Execute": { good: 5, max: 6 },
+        "Experience": { good: 3, max: 5 },
+        "Feather Falling": { good: 5, max: 10 },
+        "Ferocious Mana": { good: 10, max: 10 },
+        "Fire Aspect": { good: 2, max: 3 },
+        "Fire Protection": { good: 5, max: 7 },
+        "First Strike": { good: 4, max: 5 },
+        "Flame": { good: 1, max: 2 },
+        "Forest Pledge": { good: 2, max: 5 },
+        "Fortune": { good: 3, max: 4 },
+        "Frail": { good: 5, max: 7 },
+        "Frost Walker": { good: 2, max: 2 },
+        "Giant Killer": { good: 5, max: 7 },
+        "Gravity": { good: 5, max: 6 },
+        "Great Spook": { good: 1, max: 1 },
+        "Green Thumb": { good: 0, max: 5 },
+        "Growth": { good: 5, max: 7 },
+        "Hardened Mana": { good: 10, max: 10 },
+        "Harvesting": { good: 5, max: 6 },
+        "Ice Cold": { good: 0, max: 5 },
+        "Impaling": { good: 5, max: 5 },
+        "Infinite Quiver": { good: 5, max: 10 },
+        "Knockback": { good: 2, max: 2 },
+        "Lapidary": { good: 0, max: 5 },
+        "Lethality": { good: 5, max: 6 },
+        "Life Steal": { good: 3, max: 5 },
+        "Looting": { good: 3, max: 5 },
+        "Luck": { good: 5, max: 7 },
+        "Luck Of The Sea": { good: 5, max: 7 },
+        "Lure": { good: 5, max: 6 },
+        "Magnet": { good: 5, max: 6 },
+        "Mana Steal": { good: 0, max: 3 },
+        "Mana Vampire": { good: 10, max: 10 },
+        "Overload": { good: 0, max: 5 },
+        "Paleontologist": { good: 0, max: 5 },
+        "Pesterminator": { good: 0, max: 6 },
+        "Piercing": { good: 1, max: 1 },
+        "Piscary": { good: 5, max: 7 },
+        "Power": { good: 5, max: 7 },
+        "Prismatic": { good: 0, max: 5 },
+        "Projectile Protection": { good: 5, max: 7 },
+        "Prosecute": { good: 5, max: 6 },
+        "Prosperity": { good: 0, max: 5 },
+        "Protection": { good: 5, max: 7 },
+        "Punch": { good: 2, max: 2 },
+        "Quantum": { good: 0, max: 5 },
+        "Quick Bite": { good: 0, max: 5 },
+        "Rainbow": { good: 1, max: 3 },
+        "Reflection": { good: 0, max: 5 },
+        "Rejuvenate": { good: 0, max: 5 },
+        "Replenish": { good: 1, max: 1 },
+        "Respiration": { good: 3, max: 4 },
+        "Respite": { good: 5, max: 5 },
+        "Scavenger": { good: 3, max: 6 },
+        "Scuba": { good: 0, max: 5 },
+        "Sharpness": { good: 5, max: 7 },
+        "Silk Touch": { good: 1, max: 1 },
+        "Small Brain": { good: 0, max: 5 },
+        "Smarty Pants": { good: 0, max: 5 },
+        "Smelting Touch": { good: 1, max: 1 },
+        "Smite": { good: 5, max: 7 },
+        "Smoldering": { good: 0, max: 5 },
+        "Snipe": { good: 3, max: 4 },
+        "Spiked Hook": { good: 5, max: 7 },
+        "Stealth": { good: 0, max: 1 },
+        "Strong Mana": { good: 10, max: 10 },
+        "Sugar Rush": { good: 0, max: 3 },
+        "Sunder": { good: 0, max: 6 },
+        "Tabasco": { good: 0, max: 3 },
+        "Thorns": { good: 3, max: 3 },
+        "Thunderbolt": { good: 5, max: 7 },
+        "Thunderlord": { good: 5, max: 7 },
+        "Tidal": { good: 0, max: 3 },
+        "Titan Killer": { good: 5, max: 7 },
+        "Transylvanian": { good: 0, max: 5 },
+        "Triple-Strike": { good: 4, max: 5 },
+        "True Protection": { good: 0, max: 1 },
+        "Turbo-Cacti": { good: 0, max: 5 },
+        "Turbo-Cane": { good: 0, max: 5 },
+        "Turbo-Carrot": { good: 0, max: 5 },
+        "Turbo-Cocoa": { good: 0, max: 5 },
+        "Turbo-Melon": { good: 0, max: 5 },
+        "Turbo-Moonflower": { good: 0, max: 5 },
+        "Turbo-Mushrooms": { good: 0, max: 5 },
+        "Turbo-Potato": { good: 0, max: 5 },
+        "Turbo-Pumpkin": { good: 0, max: 5 },
+        "Turbo-Rose": { good: 0, max: 5 },
+        "Turbo-Sunflower": { good: 0, max: 5 },
+        "Turbo-Warts": { good: 0, max: 5 },
+        "Turbo-Wheat": { good: 0, max: 5 },
+        "Vampirism": { good: 5, max: 6 },
+        "Venomous": { good: 5, max: 7 },
+        "Vicious": { good: 0, max: 5 },
+        "Woodsplitter": { good: 5, max: 6 }
+    }
 };

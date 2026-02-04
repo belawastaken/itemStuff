@@ -14,6 +14,12 @@
                 <div class="control-row">
                     <button id="bg-toggle-btn" class="control-btn">◑ BG</button>
                     <button id="magic-toggle-btn" class="control-btn active">★ Magic</button>
+                    
+                    <select id="color-mode-select" class="control-btn" title="Enchantment Colors">
+                        <option value="sba">🎨 Colors: SBA</option>
+                        <option value="vanilla">🎨 Colors: Vanilla</option>
+                    </select>
+
                     <button id="pretty-toggle-btn" class="control-btn">✨ Pretty</button>
                     <button id="clean-toggle-btn" class="control-btn">🧹 Clean</button>
                     <button id="btn-toggle-gs" class="control-btn active">GS: ON</button>
@@ -31,12 +37,42 @@
             </div>
 
             <textarea id="code-editor" spellcheck="false">{
-  "name": "§r§dPrecise Terminator §r§6✪✪✪✪✪§r§c➎",
+  "name": "§r§dHeroic Hyperion §r§6✪✪✪✪✪§r§c➎",
   "Lore": [
-    "§r§7Gear Score: §r§d1014 §r§8(4533)",
-    "§r§7Damage: §r§c+371 §r§e(+30) §r§8(+2,009.4)",
+    "§r§7Gear Score: §r§d1496 §r§8(5000)",
+    "§r§7Damage: §r§c+367 §r§e(+30) §r§8(+2,015.31)",
+    "§r§7Strength: §r§c+288 §r§e(+30) §r§6[+5] §r§9(+50) §r§8(+1,613.43)",
+    "§r§7Crit Damage: §r§9+100% §r§8(+591%)",
+    "§r§7Bonus Attack Speed: §r§e+42% §r§9(+7%) §r§8(+65.1%)",
+    "§r§7Ferocity: §r§c+38 §r§8(+54.25)",
+    "§r§7Intelligence: §r§b+737.25 §r§9(+125) §r§d(+60) §r§8(+4,150.3)",
+    "§r§7Magic Find: §r§b+6 §r§8(+9.3)",
+    "§r §r§6[§r§b✎§r§6] §r§6[§r§b⚔§r§6]",
     "",
-    "§r§d§la§r§d§l MYTHIC DUNGEON BOW §r§d§la"
+    "§r§d§lChimera V, §r§9Bane of Arthropods VII, §r§9Cleave VI",
+    "§r§9Critical VII, §r§9Cubism VI, §r§9Divine Gift III",
+    "§r§9Ender Slayer VII, §r§9Execute VI, §r§9Experience V",
+    "§r§9Fire Aspect III, §r§9Gravity VI, §r§9Impaling V",
+    "§r§9Knockback II, §r§9Lethality VI, §r§9Life Steal V",
+    "§r§9Looting V, §r§9Luck VII, §r§9Scavenger VI",
+    "§r§9Sharpness VII, §r§9Smite VII, §r§9Tabasco III",
+    "§r§9Thunderlord VII, §r§9Titan Killer VII, §r§9Triple-Strike V",
+    "§r§9Vampirism VI, §r§9Venomous VII, §r§9Vicious V",
+    "",
+    "§r§7Deals §r§c+50% §r§7damage to §r§8☠ Wither §r§7mobs.",
+    "§r§7Grants §r§c+1 §r§c❁ Damage §r§7and §r§a+2 §r§b✎",
+    "§r§bIntelligence §r§7per §r§cCatacombs §r§7level.",
+    "",
+    "§r§aScroll Abilities:",
+    "§r§c§l⦾ §r§6Ability: Wither Impact  §r§e§lRIGHT CLICK",
+    "§r§7Teleport §r§a10 blocks§r§7 ahead of you",
+    "§r§7dealing §r§c34,914.6 §r§7damage to nearby",
+    "§r§7enemies. Also reduces your damage",
+    "§r§7taken and grants an absorption",
+    "§r§7shield for §r§e5 seconds§r§7.",
+    "§r§8Mana Cost: §r§3270",
+    "",
+    "§r§d§la§r§d§lMYTHIC DUNGEON SWORD §r§d§la"
   ]
 }</textarea>
 
@@ -92,6 +128,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="database.js"></script>
-    <script src="script.js"></script>
+    <script src="constants.js"></script>
+    <script src="render.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>

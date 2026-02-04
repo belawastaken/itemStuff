@@ -11,7 +11,6 @@ body {
     height: 100vh;
     background-color: #121212;
     color: #e0e0e0;
-    /* UPDATE: Added fallback fonts for symbols to prevent "squares" in screenshots */
     font-family: 'Minecraft Custom', 'Segoe UI Symbol', 'DejaVu Sans', 'Symbola', sans-serif;
     overflow: hidden;
 }
@@ -192,7 +191,6 @@ body {
     z-index: 5;
     padding: 6px 8px;
     color: #ffffff;
-    /* UPDATE: Explicit font stack here too */
     font-family: 'Minecraft Custom', 'Segoe UI Symbol', 'DejaVu Sans', 'Symbola', sans-serif;
     font-size: 16px;
     line-height: 20px;
@@ -216,3 +214,20 @@ body {
 /* COLORS */
 .c-0{color:#000;text-shadow:2px 2px #000}.c-1{color:#00a;text-shadow:2px 2px #002a00}.c-2{color:#0a0;text-shadow:2px 2px #002a00}.c-3{color:#0aa;text-shadow:2px 2px #002a2a}.c-4{color:#a00;text-shadow:2px 2px #2a0000}.c-5{color:#a0a;text-shadow:2px 2px #2a002a}.c-6{color:#fa0;text-shadow:2px 2px #2a2a00}.c-7{color:#aaa;text-shadow:2px 2px #2a2a2a}.c-8{color:#555;text-shadow:2px 2px #151515}.c-9{color:#55f;text-shadow:2px 2px #15153f}.c-a{color:#5f5;text-shadow:2px 2px #153f15}.c-b{color:#5ff;text-shadow:2px 2px #153f3f}.c-c{color:#f55;text-shadow:2px 2px #3f1515}.c-d{color:#f5f;text-shadow:2px 2px #3f153f}.c-e{color:#ff5;text-shadow:2px 2px #3f3f15}.c-f{color:#fff;text-shadow:2px 2px #3f3f3f}
 .s-l{font-weight:bold}.s-m{text-decoration:line-through}.s-n{text-decoration:underline}.s-o{font-style:italic}
+
+/* --- CHROMA ANIMATION (Use §z to apply) --- */
+@keyframes chroma-anim {
+    0% { color: #ff5555; text-shadow: 2px 2px #3f1515; }
+    16% { color: #ffaa00; text-shadow: 2px 2px #3f2a00; }
+    33% { color: #ffff55; text-shadow: 2px 2px #3f3f15; }
+    50% { color: #55ff55; text-shadow: 2px 2px #153f15; }
+    66% { color: #55ffff; text-shadow: 2px 2px #153f3f; }
+    83% { color: #5555ff; text-shadow: 2px 2px #15153f; }
+    100% { color: #ff55ff; text-shadow: 2px 2px #3f153f; }
+}
+
+.s-z {
+    animation: chroma-anim 5s linear infinite;
+    display: inline-block;
+    color: #ff5555; 
+}
