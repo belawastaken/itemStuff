@@ -4,23 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skyblock Tooltip Editor</title>
+    <link rel="stylesheet" href="../../core/global.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+    <nav id="global-navbar"></nav>
 
     <div class="app-layout">
         <div class="panel preview-panel" id="preview-panel">
             <div class="preview-controls">
                 <div class="control-row">
-                    <button id="bg-toggle-btn" class="control-btn">◑ BG</button>
                     <button id="magic-toggle-btn" class="control-btn active">★ Magic</button>
-                    
-                    <select id="color-mode-select" class="control-btn" title="Enchantment Colors">
-                        <option value="sba">🎨 Colors: SBA</option>
-                        <option value="vanilla">🎨 Colors: Vanilla</option>
-                    </select>
-
-                    <button id="pretty-toggle-btn" class="control-btn">✨ Pretty</button>
                     <button id="clean-toggle-btn" class="control-btn">🧹 Clean</button>
                     <button id="btn-toggle-gs" class="control-btn active">GS: ON</button>
                     <button id="btn-toggle-brackets" class="control-btn active">Brackets: ON</button>
@@ -32,99 +27,27 @@
 
         <div class="panel editor-panel">
             <div class="editor-header">
-                <span class="editor-title">Item Data</span>
-                <button id="mode-toggle-btn" class="control-btn">✎ Simple Mode</button>
+                <span class="editor-title">Item Data (JSON)</span>
             </div>
 
-            <textarea id="code-editor" spellcheck="false">{
-  "name": "§r§dHeroic Hyperion §r§6✪✪✪✪✪§r§c➎",
-  "Lore": [
-    "§r§7Gear Score: §r§d1496 §r§8(5000)",
-    "§r§7Damage: §r§c+367 §r§e(+30) §r§8(+2,015.31)",
-    "§r§7Strength: §r§c+288 §r§e(+30) §r§6[+5] §r§9(+50) §r§8(+1,613.43)",
-    "§r§7Crit Damage: §r§9+100% §r§8(+591%)",
-    "§r§7Bonus Attack Speed: §r§e+42% §r§9(+7%) §r§8(+65.1%)",
-    "§r§7Ferocity: §r§c+38 §r§8(+54.25)",
-    "§r§7Intelligence: §r§b+737.25 §r§9(+125) §r§d(+60) §r§8(+4,150.3)",
-    "§r§7Magic Find: §r§b+6 §r§8(+9.3)",
-    "§r §r§6[§r§b✎§r§6] §r§6[§r§b⚔§r§6]",
-    "",
-    "§r§d§lChimera V, §r§9Bane of Arthropods VII, §r§9Cleave VI",
-    "§r§9Critical VII, §r§9Cubism VI, §r§9Divine Gift III",
-    "§r§9Ender Slayer VII, §r§9Execute VI, §r§9Experience V",
-    "§r§9Fire Aspect III, §r§9Gravity VI, §r§9Impaling V",
-    "§r§9Knockback II, §r§9Lethality VI, §r§9Life Steal V",
-    "§r§9Looting V, §r§9Luck VII, §r§9Scavenger VI",
-    "§r§9Sharpness VII, §r§9Smite VII, §r§9Tabasco III",
-    "§r§9Thunderlord VII, §r§9Titan Killer VII, §r§9Triple-Strike V",
-    "§r§9Vampirism VI, §r§9Venomous VII, §r§9Vicious V",
-    "",
-    "§r§7Deals §r§c+50% §r§7damage to §r§8☠ Wither §r§7mobs.",
-    "§r§7Grants §r§c+1 §r§c❁ Damage §r§7and §r§a+2 §r§b✎",
-    "§r§bIntelligence §r§7per §r§cCatacombs §r§7level.",
-    "",
-    "§r§aScroll Abilities:",
-    "§r§c§l⦾ §r§6Ability: Wither Impact  §r§e§lRIGHT CLICK",
-    "§r§7Teleport §r§a10 blocks§r§7 ahead of you",
-    "§r§7dealing §r§c34,914.6 §r§7damage to nearby",
-    "§r§7enemies. Also reduces your damage",
-    "§r§7taken and grants an absorption",
-    "§r§7shield for §r§e5 seconds§r§7.",
-    "§r§8Mana Cost: §r§3270",
-    "",
-    "§r§d§la§r§d§lMYTHIC DUNGEON SWORD §r§d§la"
-  ]
-}</textarea>
-
-            <div id="simple-editor" style="display: none;">
-                <div class="symbol-toolbar">
-                    <button class="symbol-btn btn-gold" data-insert="&6✪" title="Gold Star">✪</button>
-                    <div class="separator"></div>
-                    <button class="symbol-btn btn-red" data-insert="&c➊" title="Master Star 1">➊</button>
-                    <button class="symbol-btn btn-red" data-insert="&c➋" title="Master Star 2">➋</button>
-                    <button class="symbol-btn btn-red" data-insert="&c➌" title="Master Star 3">➌</button>
-                    <button class="symbol-btn btn-red" data-insert="&c➍" title="Master Star 4">➍</button>
-                    <button class="symbol-btn btn-red" data-insert="&c➎" title="Master Star 5">➎</button>
-                    
-                    <div class="separator"></div>
-                    
-                    <button class="symbol-btn col-0" data-insert="&0" title="Black">0</button>
-                    <button class="symbol-btn col-1" data-insert="&1" title="Dark Blue">1</button>
-                    <button class="symbol-btn col-2" data-insert="&2" title="Dark Green">2</button>
-                    <button class="symbol-btn col-3" data-insert="&3" title="Dark Aqua">3</button>
-                    <button class="symbol-btn col-4" data-insert="&4" title="Dark Red">4</button>
-                    <button class="symbol-btn col-5" data-insert="&5" title="Dark Purple">5</button>
-                    <button class="symbol-btn col-6" data-insert="&6" title="Gold">6</button>
-                    <button class="symbol-btn col-7" data-insert="&7" title="Gray">7</button>
-                    <button class="symbol-btn col-8" data-insert="&8" title="Dark Gray">8</button>
-                    <button class="symbol-btn col-9" data-insert="&9" title="Blue">9</button>
-                    <button class="symbol-btn col-a" data-insert="&a" title="Green">a</button>
-                    <button class="symbol-btn col-b" data-insert="&b" title="Aqua">b</button>
-                    <button class="symbol-btn col-c" data-insert="&c" title="Red">c</button>
-                    <button class="symbol-btn col-d" data-insert="&d" title="Light Purple">d</button>
-                    <button class="symbol-btn col-e" data-insert="&e" title="Yellow">e</button>
-                    <button class="symbol-btn col-f" data-insert="&f" title="White">f</button>
-
-                    <div class="separator"></div>
-
-                    <button class="symbol-btn fmt-l" data-insert="&l" title="Bold">l</button>
-                    <button class="symbol-btn fmt-m" data-insert="&m" title="Strikethrough">m</button>
-                    <button class="symbol-btn fmt-n" data-insert="&n" title="Underline">n</button>
-                    <button class="symbol-btn fmt-o" data-insert="&o" title="Italic">o</button>
-                    <button class="symbol-btn fmt-r" data-insert="&r" title="Reset">r</button>
-                </div>
-
-                <div class="input-group">
-                    <label>Name</label>
-                    <input type="text" id="simple-name" class="simple-input" spellcheck="false">
-                </div>
-                <div class="input-group full-height">
-                    <label>Lore</label>
-                    <textarea id="simple-lore" class="simple-textarea" spellcheck="false"></textarea>
-                </div>
-            </div>
+            <textarea id="code-editor" spellcheck="false"></textarea>
         </div>
     </div>
+
+    <script type="module">
+        import { HYPERION_DATA } from './defaultData.js';
+        // Import Navbar Logic
+        import { initNavbar } from '../../shared/ui/navbar.js';
+        
+        // Initialize Navbar
+        initNavbar();
+
+        // Populate the editor
+        const editor = document.getElementById('code-editor');
+        if (editor) {
+            editor.value = JSON.stringify(HYPERION_DATA, null, 2);
+        }
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="database.js"></script>

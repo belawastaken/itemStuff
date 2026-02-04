@@ -1,8 +1,6 @@
 /* --- GLOBAL CONFIGURATION --- */
 let AUTO_FIX_ARTIFACTS = true;
 let AUTO_CLEAN_PASTE = false;
-let PRETTY_MODE = false; 
-let ENCHANT_COLOR_MODE = "sba"; // 'sba' or 'vanilla'
 
 // VIEW TOGGLES
 let SHOW_GEAR_SCORE = true;

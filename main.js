@@ -1,32 +1,18 @@
 /* --- MAIN APPLICATION LOGIC --- */
 
-let isSimpleMode = false;
-let cachedJSON = {};
-let lastFocusedInput = null;
-
 document.addEventListener('DOMContentLoaded', () => {
     // Initializer dependencies
     if (typeof initPools === 'function') initPools();
     if (typeof startObfuscation === 'function') startObfuscation();
 
     const editor = document.getElementById('code-editor');
-    const simpleEditor = document.getElementById('simple-editor');
-    const simpleName = document.getElementById('simple-name');
-    const simpleLore = document.getElementById('simple-lore');
-    const modeBtn = document.getElementById('mode-toggle-btn');
-    const bgToggle = document.getElementById('bg-toggle-btn');
     const magicToggle = document.getElementById('magic-toggle-btn');
     const cleanToggle = document.getElementById('clean-toggle-btn');
-    const prettyToggle = document.getElementById('pretty-toggle-btn');
     const btnGS = document.getElementById('btn-toggle-gs');
     const btnBrackets = document.getElementById('btn-toggle-brackets');
     const btnSave = document.getElementById('btn-save-png');
+    const controlRow = document.querySelector('.control-row');
     
-    // NEW: Color Mode Selector
-    const colorSelect = document.getElementById('color-mode-select');
-    
-    const symbolBtns = document.querySelectorAll('.symbol-btn');
-
     // Load LocalStorage Defaults
     if (localStorage.getItem('autoCleanPaste') === 'true') {
         AUTO_CLEAN_PASTE = true;
@@ -35,64 +21,13 @@ document.addEventListener('DOMContentLoaded', () => {
             cleanToggle.classList.add('active');
         }
     }
-    if (localStorage.getItem('prettyMode') === 'true') {
-        PRETTY_MODE = true;
-        if (prettyToggle) {
-            prettyToggle.innerText = "✨ Pretty: ON";
-            prettyToggle.classList.add('active');
-        }
-    }
     
-    // Load Saved Color Mode
-    const savedColorMode = localStorage.getItem('enchantColorMode');
-    if (savedColorMode) {
-        ENCHANT_COLOR_MODE = savedColorMode;
-        if(colorSelect) colorSelect.value = ENCHANT_COLOR_MODE;
-    }
-
     // --- EVENT LISTENERS ---
-
-    if (colorSelect) {
-        colorSelect.addEventListener('change', (e) => {
-            ENCHANT_COLOR_MODE = e.target.value;
-            localStorage.setItem('enchantColorMode', ENCHANT_COLOR_MODE);
-            if (editor) render(editor.value);
-        });
-    }
 
     if (editor) editor.addEventListener('input', () => render(editor.value));
 
-    if (simpleName) {
-        simpleName.addEventListener('focus', () => { lastFocusedInput = simpleName; });
-        simpleName.addEventListener('input', updateFromSimple);
-    }
-    if (simpleLore) {
-        simpleLore.addEventListener('focus', () => { lastFocusedInput = simpleLore; });
-        simpleLore.addEventListener('input', updateFromSimple);
-    }
-
-    symbolBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const char = btn.getAttribute('data-insert');
-            const target = lastFocusedInput || simpleLore; 
-            
-            if (target) {
-                const start = target.selectionStart;
-                const end = target.selectionEnd;
-                const text = target.value;
-                
-                target.value = text.substring(0, start) + char + text.substring(end);
-                target.selectionStart = target.selectionEnd = start + char.length;
-                target.focus();
-                
-                updateFromSimple();
-            }
-        });
-    });
-
     if (editor) {
         editor.addEventListener('paste', (e) => {
-            if (isSimpleMode) return; 
             const text = (e.clipboardData || window.clipboardData).getData('text');
             try {
                 let json = JSON.parse(text);
@@ -150,16 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (prettyToggle) {
-        prettyToggle.addEventListener('click', () => {
-            PRETTY_MODE = !PRETTY_MODE;
-            localStorage.setItem('prettyMode', PRETTY_MODE);
-            prettyToggle.innerText = PRETTY_MODE ? "✨ Pretty: ON" : "✨ Pretty: OFF";
-            prettyToggle.classList.toggle('active');
-            render(editor.value);
-        });
-    }
-
     if (cleanToggle) {
         cleanToggle.addEventListener('click', () => {
             AUTO_CLEAN_PASTE = !AUTO_CLEAN_PASTE;
@@ -201,47 +126,50 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (modeBtn) {
-        modeBtn.addEventListener('click', () => {
-            isSimpleMode = !isSimpleMode;
-            if (isSimpleMode) {
-                try {
-                    const json = JSON.parse(editor.value);
-                    cachedJSON = json; 
-                    let name = json.name || "";
-                    name = name.replace(/§/g, '&');
-                    let lore = json.Lore || [];
-                    lore = lore.map(l => l.replace(/§/g, '&')).join('\n');
-                    simpleName.value = name;
-                    simpleLore.value = lore;
-                    editor.style.display = 'none';
-                    simpleEditor.style.display = 'flex';
-                    modeBtn.innerText = "✎ Code Mode";
-                    modeBtn.classList.add('active');
-                } catch (e) {
-                    alert("Invalid JSON!");
-                    isSimpleMode = false;
+    // --- PRETTY BUTTON ---
+    if (controlRow) {
+        let isPretty = false;
+        let originalJson = null;
+
+        const btnPretty = document.createElement('button');
+        btnPretty.className = 'control-btn';
+        btnPretty.innerText = '✨ Pretty: OFF';
+        btnPretty.title = "Sorts enchants: Ultimate > Stacking > Normal";
+        controlRow.appendChild(btnPretty);
+
+        btnPretty.addEventListener('click', () => {
+            if (!editor) return;
+            
+            if (isPretty) {
+                if (originalJson) {
+                    editor.value = originalJson;
+                    render(editor.value);
                 }
+                isPretty = false;
+                originalJson = null;
+                btnPretty.innerText = '✨ Pretty: OFF';
+                btnPretty.classList.remove('active');
             } else {
-                editor.style.display = 'block';
-                simpleEditor.style.display = 'none';
-                modeBtn.innerText = "✎ Simple Mode";
-                modeBtn.classList.remove('active');
+                try {
+                    const raw = editor.value;
+                    const json = JSON.parse(raw);
+                    let lore = json.Lore || json.tag?.display?.Lore;
+                    if (lore && Array.isArray(lore)) {
+                        originalJson = raw;
+                        const newLore = prettifyEnchants(lore);
+                        if (json.Lore) json.Lore = newLore;
+                        else if (json.tag?.display?.Lore) json.tag.display.Lore = newLore;
+                        editor.value = JSON.stringify(json, null, 2);
+                        render(editor.value);
+                        isPretty = true;
+                        btnPretty.innerText = '✨ Pretty: ON';
+                        btnPretty.classList.add('active');
+                    }
+                } catch (e) { console.error(e); }
             }
         });
     }
 
-    function updateFromSimple() {
-        const name = simpleName.value.replace(/&/g, '§');
-        const loreLines = simpleLore.value.split('\n').map(l => l.replace(/&/g, '§'));
-        cachedJSON.name = name;
-        cachedJSON.Lore = loreLines;
-        const newString = JSON.stringify(cachedJSON, null, 2);
-        editor.value = newString;
-        render(newString);
-    };
-
-    if (bgToggle) bgToggle.addEventListener('click', () => document.getElementById('preview-panel').classList.toggle('white-mode'));
     if (magicToggle) {
         magicToggle.addEventListener('click', () => {
             AUTO_FIX_ARTIFACTS = !AUTO_FIX_ARTIFACTS;
@@ -253,3 +181,71 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (editor) render(editor.value);
 });
+
+/* --- PRETTY ENCHANTS LOGIC --- */
+function prettifyEnchants(lore) {
+    const enchantLinesIndices = [];
+    const extractedEnchants = [];
+
+    // 1. Identify and Extract
+    lore.forEach((line, index) => {
+        const clean = line.replace(/§[0-9a-fk-or]/gi, "");
+        if (!clean.trim()) return;
+
+        const parts = clean.split(',');
+        // Heuristic: Line is enchants if it contains at least one known enchant and isn't a stat (contains :)
+        const hasEnchant = parts.some(p => getEnchantType(getEnchantName(p.trim())) !== 'unknown');
+        const isStat = clean.includes(':'); 
+        
+        if (hasEnchant && !isStat) {
+            enchantLinesIndices.push(index);
+            const originalParts = line.split(',');
+            originalParts.forEach(p => extractedEnchants.push(p.trim()));
+        }
+    });
+
+    if (extractedEnchants.length === 0) return lore;
+
+    // 2. Sort
+    extractedEnchants.sort((a, b) => {
+        const nameA = getEnchantName(a.replace(/§[0-9a-fk-or]/gi, "").trim());
+        const nameB = getEnchantName(b.replace(/§[0-9a-fk-or]/gi, "").trim());
+        
+        const typeA = getEnchantType(nameA);
+        const typeB = getEnchantType(nameB);
+        
+        const priority = { 'ultimate': 0, 'stacking': 1, 'normal': 2, 'unknown': 3 };
+        
+        if (priority[typeA] !== priority[typeB]) return priority[typeA] - priority[typeB];
+        return nameA.localeCompare(nameB);
+    });
+
+    // 3. Re-Chunk (3 per line)
+    const newEnchantLines = [];
+    let chunk = [];
+    extractedEnchants.forEach(ench => {
+        chunk.push(ench);
+        if (chunk.length >= 3) { newEnchantLines.push(chunk.join(', ')); chunk = []; }
+    });
+    if (chunk.length > 0) newEnchantLines.push(chunk.join(', '));
+
+    // 4. Re-Insert
+    const resultLore = [];
+    let inserted = false;
+    lore.forEach((line, index) => {
+        if (enchantLinesIndices.includes(index)) {
+            if (!inserted) { resultLore.push(...newEnchantLines); inserted = true; }
+        } else { resultLore.push(line); }
+    });
+    return resultLore;
+}
+
+function getEnchantName(str) { return str.replace(/\s+(\d+|I|V|X|L|C|D|M)+$/i, ""); }
+
+function getEnchantType(name) {
+    if (typeof SKYBLOCK_DB === 'undefined') return 'normal';
+    if (SKYBLOCK_DB.ultimate.includes(name)) return 'ultimate';
+    if (SKYBLOCK_DB.stacking.includes(name)) return 'stacking';
+    if (SKYBLOCK_DB.normal[name]) return 'normal';
+    return 'unknown';
+}
