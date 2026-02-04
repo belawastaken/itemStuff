@@ -13,6 +13,45 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnSave = document.getElementById('btn-save-png');
     const controlRow = document.querySelector('.control-row');
     
+    // State for Pretty Print
+    let isPretty = false;
+
+    // Helper: Decides whether to render raw JSON or "Prettified" JSON
+    const updatePreview = () => {
+        if (!editor) return;
+        const rawValue = editor.value;
+
+        if (isPretty) {
+            try {
+                const json = JSON.parse(rawValue);
+                let lore = json.Lore || json.tag?.display?.Lore;
+                
+                // If valid lore exists, apply prettify logic on a COPY for rendering
+                if (lore && Array.isArray(lore)) {
+                    // Deep copy logic for the render object to avoid mutating the editor state
+                    const renderObj = JSON.parse(JSON.stringify(json));
+                    
+                    // Apply sorting to the copy
+                    let targetLore = renderObj.Lore || renderObj.tag?.display?.Lore;
+                    if (targetLore) {
+                        const newLore = prettifyEnchants(targetLore);
+                        if (renderObj.Lore) renderObj.Lore = newLore;
+                        else if (renderObj.tag?.display?.Lore) renderObj.tag.display.Lore = newLore;
+                    }
+                    
+                    render(JSON.stringify(renderObj, null, 2));
+                    return; 
+                }
+            } catch (e) {
+                // If JSON is invalid, just render raw so the error border still shows up
+                // console.log("Pretty preview failed (invalid JSON), falling back to raw");
+            }
+        }
+        
+        // Default: Render raw value exactly as typed
+        render(rawValue);
+    };
+
     // Load LocalStorage Defaults
     if (localStorage.getItem('autoCleanPaste') === 'true') {
         AUTO_CLEAN_PASTE = true;
@@ -24,7 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- EVENT LISTENERS ---
 
-    if (editor) editor.addEventListener('input', () => render(editor.value));
+    // Updated: Use updatePreview instead of direct render
+    if (editor) editor.addEventListener('input', updatePreview);
 
     if (editor) {
         editor.addEventListener('paste', (e) => {
@@ -80,6 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         return line;
                     });
                     document.execCommand('insertText', false, JSON.stringify(json, null, 2));
+                    // execCommand triggers 'input', which calls updatePreview()
                 }
             } catch (err) {}
         });
@@ -99,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
             SHOW_GEAR_SCORE = !SHOW_GEAR_SCORE;
             btnGS.innerText = SHOW_GEAR_SCORE ? "GS: ON" : "GS: OFF";
             btnGS.classList.toggle('active');
-            render(editor.value);
+            updatePreview(); 
         });
     }
 
@@ -108,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
             SHOW_BRACKETS = !SHOW_BRACKETS;
             btnBrackets.innerText = SHOW_BRACKETS ? "Brackets: ON" : "Brackets: OFF";
             btnBrackets.classList.toggle('active');
-            render(editor.value);
+            updatePreview();
         });
     }
 
@@ -126,47 +167,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- PRETTY BUTTON ---
+    // --- PRETTY BUTTON (Visual Only) ---
     if (controlRow) {
-        let isPretty = false;
-        let originalJson = null;
-
         const btnPretty = document.createElement('button');
         btnPretty.className = 'control-btn';
         btnPretty.innerText = '✨ Pretty: OFF';
-        btnPretty.title = "Sorts enchants: Ultimate > Stacking > Normal";
+        btnPretty.title = "Sorts enchants visually (Ultimate > Stacking > Normal) without changing code";
         controlRow.appendChild(btnPretty);
 
         btnPretty.addEventListener('click', () => {
-            if (!editor) return;
+            isPretty = !isPretty; // Toggle state
             
             if (isPretty) {
-                if (originalJson) {
-                    editor.value = originalJson;
-                    render(editor.value);
-                }
-                isPretty = false;
-                originalJson = null;
+                btnPretty.innerText = '✨ Pretty: ON';
+                btnPretty.classList.add('active');
+            } else {
                 btnPretty.innerText = '✨ Pretty: OFF';
                 btnPretty.classList.remove('active');
-            } else {
-                try {
-                    const raw = editor.value;
-                    const json = JSON.parse(raw);
-                    let lore = json.Lore || json.tag?.display?.Lore;
-                    if (lore && Array.isArray(lore)) {
-                        originalJson = raw;
-                        const newLore = prettifyEnchants(lore);
-                        if (json.Lore) json.Lore = newLore;
-                        else if (json.tag?.display?.Lore) json.tag.display.Lore = newLore;
-                        editor.value = JSON.stringify(json, null, 2);
-                        render(editor.value);
-                        isPretty = true;
-                        btnPretty.innerText = '✨ Pretty: ON';
-                        btnPretty.classList.add('active');
-                    }
-                } catch (e) { console.error(e); }
             }
+            
+            // Re-render immediately
+            updatePreview();
         });
     }
 
@@ -175,11 +196,11 @@ document.addEventListener('DOMContentLoaded', () => {
             AUTO_FIX_ARTIFACTS = !AUTO_FIX_ARTIFACTS;
             magicToggle.innerText = AUTO_FIX_ARTIFACTS ? "★ Auto-Magic: ON" : "☆ Auto-Magic: OFF";
             magicToggle.classList.toggle('active');
-            if (editor) render(editor.value);
+            if (editor) updatePreview();
         });
     }
 
-    if (editor) render(editor.value);
+    if (editor) updatePreview();
 });
 
 /* --- PRETTY ENCHANTS LOGIC --- */
